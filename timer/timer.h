@@ -24,6 +24,7 @@ typedef struct {
               * 1, 2, 3    | CKD   | ARPE | CMS   | DIR | OPM | URS | UDIS | CEN
               * 14         | CKD   | ARPE |       |     |     | URS | UDIS | CEN
               * 15, 16, 17 | CKD   | ARPE |       |     | OPM | URS | UDIS | CEN
+              * 6          |       | ARPE |       |     | OPM | URS | UDIS | CEN
               */
 
              CR2,    // 0x04 - unused in [14]
@@ -34,6 +35,7 @@ typedef struct {
               *  2, 3   |                                                   | TI1S | MMS   | CCDS |
               *  15     |      |       |      |       | OIS2 | OIS1N | OIS1 |      | MMS   | CCDS | CCUS |       | CCPC
               *  16, 17 |      |       |      |       |      | OIS1N | OIS1 |      |       | CCDS | CCUS |       | CCPC
+              *  6      |      |       |      |       |      |       |      |      | MMS   |      |      |       |
               */
 
              SMCR,   // 0x08 - unused in [14, 16, 17, 6]
@@ -53,6 +55,7 @@ typedef struct {
               *  14     |      |       |       |       |       |       |     |         |     |       |       |       |       | CC1IE | UIE
               *  15     | TDE  |       |       |       | CC2DE | CC1DE | UDE | BIE     | TIE | COMIE |       |       | CC2IE | CC1IE | UIE
               *  16, 17 | TDE  |       |       |       |       | CC1DE | UDE | BIE     | TIE | COMIE |       |       |       | CC1IE | UIE
+              *  6      |      |       |       |       |       |       | UDE |         |     |       |       |       |       |       | UIE
               */
 
              SR,     // 0x10
@@ -64,6 +67,7 @@ typedef struct {
               *  14     |                      |       |       | CC1OF | <RES> |       |     |       |       |       |       | CC1IF | UIF
               *  15     |                      |       | CC2OF | CC1OF | <RES> | BIF   | TIF | COMIF |       |       | CC2IF | CC1IF | UIF
               *  16, 17 |                      |       |       | CC1OF | <RES> | BIF   | TIF | COMIF |       |       |       | CC1IF | UIF
+              *  6      |                      |       |       |       |       |       |     |       |       |       |       |       | UIF
               */
 
              EGR,    // 0x14
@@ -75,6 +79,7 @@ typedef struct {
               *  14     |     |     |      |       |       |      | CC1G  | UG
               *  15     | BG  | TG  | COMG |       |       | CC2G | CC1G  | UG
               *  16, 17 | BG  | TG  | COMG |       |       |      | CC1G  | UG
+              *  6      |     |     |      |       |       |      |       | UG
               */
 
              CCMR1,  // 0x18 - unused in [6]

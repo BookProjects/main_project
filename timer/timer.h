@@ -131,12 +131,84 @@ typedef struct {
               *  - __NOTE__: Only works on channels w/ complementary output
               */
 
-             SMCR,   // 0x08 - unused in [14, 16, 17, 6]
+             SMCR,   // 0x08 - unused in [14, 16, 17, 6] (Slave Mode Control Register)
              /*
               * Timer    | 15  | 14   | 13 : 12 | 11 : 8 | 7    | 6 : 4 |  3    | 2 : 0
               * ---------------------------------------------------------------------------------------------------
               *  1, 2, 3 | ETP | ECE  | ETPS    | ETF    | MSM  | TS    | <RES> | SMS
               *  15      |     |      |         |        | MSM  | TS    | <RES> | SMS
+              *
+              *  ETP (External Trigger Polarity)
+              *  - 0: ETR used at high-level or rising edge for trigger ops
+              *  - 1: ETR used at low-level or falling edge for trigger ops
+              *
+              *  ECE (External Clock Enable)
+              *  - 0: External Clock Mode 2 Disabled
+              *  - 1: External Clock Mode 2 Enabled (Counter clocked by active
+              *       edge on ETRF Signal)
+              *  - __NOTES__:
+              *    - ECE=1 ~ External clk md 1 with TRGI connected to ETRF (SMS=111, TS=11)
+              *    - ECE can = 1 in slave modes [reset, gated, trigger], but
+              *      TRGI can't connect to ETRF (TS != 111)
+              *    - If ext_clk_md_1 and ext_clk_md_2 are enabled at the same
+              *      time, ETRF is input
+              *
+              *  ETPS (External Trigger Prescaler)
+              *  - ETRP freq. divided by 2^(ETPS)
+              *  - __NOTE__: ETRP freq. must be <= CLK/4
+              *
+              *  ETF (External Trigger Filter)
+              *  - define f_sampling of ETRP and length of filter (N) events
+              *    needed to validate
+              *       | Frequency  | N
+              *  ---- | ---------- | ---
+              *  0000 | f_dts      | 1
+              *  0001 | f_ck_int   | 2
+              *  0010 | f_ck_int   | 4
+              *  0011 | f_ck_int   | 8
+              *  0100 | f_dts / 2  | 6
+              *  0101 | f_dts / 2  | 8
+              *  0110 | f_dts / 4  | 6
+              *  0111 | f_dts / 4  | 8
+              *  1000 | f_dts / 8  | 6
+              *  1001 | f_dts / 8  | 8
+              *  1010 | f_dts / 16 | 5
+              *  1011 | f_dts / 16 | 6
+              *  1100 | f_dts / 16 | 8
+              *  1101 | f_dts / 32 | 5
+              *  1110 | f_dts / 32 | 6
+              *  1111 | f_dts / 32 | 8
+              *
+              *  MSM (Master / Slave Mode)
+              *  - 0: Nothing
+              *  - 1: Effect of event on TRGI is delayed to allow
+              *       synchronization b/t current timer and slaves w/ (TRGO)
+              *
+              *  TS (Trigger Selection)
+              *  - Trigger input to synchronize the timer
+              *  - 000: ITR0 (Internal Trigger)
+              *  - 001: ITR1
+              *  - 010: ITR2
+              *  - 011: ITR3
+              *  - 100: TI1F_ED (TI1 Edge Detector)
+              *  - 101: TI1FP1 (Filtered Time Input)
+              *  - 110: TI2FP2
+              *  - 111: ETRF (External Trigger Input)
+              *
+              *  SMS (Slave Mode Selection)
+              *  - When ext. signals selected, the active edge of TRGI is linked
+              *    to polarity selected on external input
+              *  - 000: Slave mode disabled, if CEN=1 prescalar clocked by
+              *         internal clock
+              *  - 001: Encoder mode 1, CTR goes up/down on TI2FP2 edge dep. on TIF1P1 level
+              *  - 010: Encoder mode 2, CTR goes up/down on TI1FP1 edge dep. on TIF2P2 level
+              *  - 011: Encoder mode 3, CTR goes up/down on both edges dep. on other input
+              *  - 100: Reset mode, Rising edge of TRGI reinitializes the counter and update of the registers
+              *  - 101: Gated mode, Counter Clock Enabled when TRGI is high, stopped when low
+              *  - 110: Trigger Mode, Only started at rising edge of TRGI
+              *  - 111: External Clock Mode 1, Rising edge of TRGI clock the counter
+              *  - __NOTE__: Can't use gated mode if TI1F_ED is TRGI (TS=100)
+              *              because only pulse generated
               */
 
              DIER,   // 0x0C

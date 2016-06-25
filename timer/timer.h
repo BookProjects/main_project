@@ -277,7 +277,7 @@ typedef struct {
               *    - CNT reinitialized by a trigger event if URS = 0 & UDIS = 0
               */
 
-             EGR,    // 0x14
+             EGR,    // 0x14 (Event Generation Register, generates interrupt / DMA and sets bits)
              /*
               * Timer   | 7   | 6   | 5    |  4    |  3    | 2    | 1     | 0
               * --------------------------------------------------------------------------
@@ -287,6 +287,28 @@ typedef struct {
               *  15     | BG  | TG  | COMG |       |       | CC2G | CC1G  | UG
               *  16, 17 | BG  | TG  | COMG |       |       |      | CC1G  | UG
               *  6      |     |     |      |       |       |      |       | UG
+              *
+              *  BG (Break Generation)
+              *  - MOE bit cleared, BIF set
+              *
+              *  TG (Trigger Generation)
+              *  - TIF set
+              *
+              *  COMG (COM Generation)
+              *  - if CCPC is set, allows to update CCxE, CCxNE, OCxM
+              *  - __NOTE__: Only on channels w/ complementary output
+              *
+              *  CCxG (Capture/Compare x Generation)
+              *  - When CCx is OUTPUT: CCxIF is set
+              *  - When CCx is INPUT: Counter captured in CCRx, CCxIF is set and
+              *                       if CCxIF was already set, CCxOF is set
+              *
+              *  UG (Update Generation)
+              *  - Update the registers
+              *  - Counter is reinitialized
+              *    - cleared if center-aligned mode or if DIR=0
+              *    - takes ARR if DIR=1 (downcounting)
+              *  - Prescaler counter is cleared too
               */
 
              CCMR1,  // 0x18 - unused in [6]

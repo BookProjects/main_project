@@ -90,6 +90,45 @@ typedef struct {
               *  15     |      |       |      |       | OIS2 | OIS1N | OIS1 |      | MMS   | CCDS | CCUS |       | CCPC
               *  16, 17 |      |       |      |       |      | OIS1N | OIS1 |      |       | CCDS | CCUS |       | CCPC
               *  6      |      |       |      |       |      |       |      |      | MMS   |      |      |       |
+              *
+              *  OISx[N] (Output Idle State)
+              *  - 0: OC1[N]=0 afer a dead-time when MOE = 0
+              *  - 1: OC1[N]=1 afer a dead-time when MOE = 0
+              *  - __NOTE__: Not writeable when LOCK lvl > 0 in BDTR
+              *
+              *  TI1S (TI1 Selection)
+              *  - 0: CH1 pin is connected to TI1 Input
+              *  - 1: CH[1, 2, 3] XOR'd to TI1 Input
+              *
+              *  MMS (Master Mode Selection)
+              *  - Select info to send to slaves for synchronization (TRGO)
+              *  - 000: RESET     - UG bit from EGR, if generated from trigger
+              *                     input, signal on TRGO is delayed compared
+              *                     to reset
+              *  - 001: ENABLE    - CEN, slight delay on trigger
+              *  - 010: UPDATE    - UEV (Update event, useful for prescalar)
+              *  - 011: CMP Pulse - CC1IF set __even when already high__
+              *  - 100: CMP       - OC1REF
+              *  - 101: CMP       - OC2REF
+              *  - 110: CMP       - OC3REF
+              *  - 111: CMP       - OC4REF
+              *
+              *  CCDS (Capture/Compare DMA Selection)
+              *  - 0: CCx DMA Request sent when CCx event occurs
+              *  - 1: CCx DMA Request sent when UEV occurs
+              *
+              *  CCUS (Capture/Compare control update selection)
+              *  - When capture/compare bits are preloaded (CCPC=1) they are
+              *  updated by:
+              *  - 0: setting the COMG bit
+              *  - 1: setting the COMG bit or rising edge on TRGI
+              *  - __NOTE__: Only works on channels w/ complementary output
+              *
+              *  CCPC (Capture/Compare Preloaded Control)
+              *  - 0: CCxE, CCxNE, OCxM not preloaded
+              *  - 1: CCxE, CCxNE, OCxM are preloaded, after being written only
+              *       updated when a COM event occurs (defined by CCUS)
+              *  - __NOTE__: Only works on channels w/ complementary output
               */
 
              SMCR,   // 0x08 - unused in [14, 16, 17, 6]

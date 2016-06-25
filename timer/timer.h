@@ -211,7 +211,7 @@ typedef struct {
               *              because only pulse generated
               */
 
-             DIER,   // 0x0C
+             DIER,   // 0x0C (DMA Interrupt Enable Register)
              /*
               * Timer   | 14   | 13    | 12    | 11    | 10    | 9     | 8   | 7       | 6   | 5     |  4    |  3    | 2     | 1     | 0
               * -------------------------------------------------------------------------------------------------------------------------
@@ -221,6 +221,17 @@ typedef struct {
               *  15     | TDE  |       |       |       | CC2DE | CC1DE | UDE | BIE     | TIE | COMIE |       |       | CC2IE | CC1IE | UIE
               *  16, 17 | TDE  |       |       |       |       | CC1DE | UDE | BIE     | TIE | COMIE |       |       |       | CC1IE | UIE
               *  6      |      |       |       |       |       |       | UDE |         |     |       |       |       |       |       | UIE
+              *
+              *  TDE (Trigger DMA Request Enable)
+              *  COMDE (COM DMA Request Enable)
+              *  CCxDE (Capture/Compare x DMA Request Enable)
+              *  UDE (Update DMA Request Enable)
+              *
+              *  BIE (Break Interrupt Enable)
+              *  TIE (Trigger Interrupt Enable)
+              *  COMIE (COM Interrupt Enable)
+              *  CCxIE (Capture/Compare Interrupt Enable)
+              *  UIE (Update Interrupt Enable)
               */
 
              SR,     // 0x10

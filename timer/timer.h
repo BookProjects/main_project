@@ -22,6 +22,7 @@ typedef struct {
               * Timer   | 9 : 8 | 7    | 6 : 5 | 4   | 3   | 2   | 1    | 0
               * --------------------------------------------------------------
               * 1, 2, 3 | CKD   | ARPE | CMS   | DIR | OPM | URS | UDIS | CEN 
+              * 14      | CKD   | ARPE |       |     |     | URS | UDIS | CEN 
               */
 
              CR2,    // 0x04 - unused in [14]
@@ -45,6 +46,7 @@ typedef struct {
               * -----------------------------------------------------------------------------------------------------------------------
               *  1    | TDE  | COMDE | CC4DE | CC3DE | CC2DE | CC1DE | UDE | BIE     | TIE | COMIE | CC4IE | CC3IE | CC2IE | CC1IE | UIE
               *  2, 3 | TDE  |       | CC4DE | CC3DE | CC2DE | CC1DE | UDE |         | TIE |       | CC4IE | CC3IE | CC2IE | CC1IE | UIE
+              *  14   |      |       |       |       |       |       |     |         |     |       |       |       |       | CC1IE | UIE
               */
 
              SR,     // 0x10
@@ -53,6 +55,7 @@ typedef struct {
               * -----------------------------------------------------------------------------------------------------------------------
               *  1    |                CC4OF | CC3OF | CC2OF | CC1OF | <RES> | BIF   | TIF | COMIF | CC4IF | CC3IF | CC2IF | CC1IF | UIF
               *  2, 3 |                CC4OF | CC3OF | CC2OF | CC1OF | <RES> |       | TIF | COMIF | CC4IF | CC3IF | CC2IF | CC1IF | UIF
+              *  14   |                      |       |       | CC1OF | <RES> |       |     |       |       |       |       | CC1IF | UIF
               */
 
              EGR,    // 0x14
@@ -61,6 +64,7 @@ typedef struct {
               * ------------------------------------------------------------------------
               *  1    | BG  | TG  | COM | CC4G  | CC3G  | CC2G  | CC1G  | UG
               *  2, 3 |     | TG  |     | CC4G  | CC3G  | CC2G  | CC1G  | UG
+              *  14   |     |     |     |       |       |       | CC1G  | UG
               */
 
              CCMR1,  // 0x18 - unused in [6]
@@ -69,11 +73,13 @@ typedef struct {
               * Timer    | 15    | 14 : 12 | 11    | 10    | 9 : 8 | 7     | 6 : 4 |  3    | 2     | 1 : 0
               * ---------------------------------------------------------------------------------------------------
               *  1, 2, 3 | OC2CE | OC2M    | OC2PE | OC2FE | CC2S  | OC1CE | OC1M  | OC1PE | OC1FE | CC1S
+              *  14      |       |         |       |       |       |       | OC1M  | OC1PE | OC1FE | CC1S
               *
               * (____________________________ INPUT CAPTURE MODE _______________________________________)
               * Timer    | 15 : 12 | 11 :10 |                9 : 8 | 7 : 4 |  3 : 2 | 1 : 0
               * ---------------------------------------------------------------------------------------------------
               *  1, 2, 3 | IC2F    | IC2PSC |                 CC2S | IC1F  | IC1PSC | CC1S
+              *  14      |         |        |                      | IC1F  | IC1PSC | CC1S
               */
 
              CCMR2,  // 0x1C - unused in [14, 16, 17, 6]
@@ -95,6 +101,7 @@ typedef struct {
               * ------------------------------------------------------------------------
               *  1    | <RES> | <RES> | CC4P | CC4E | CC3NP | CC3NE | CC3P | CC3E | CC2NP | CC2NE | CC2P | CC2E | CC1NP | CC1NE | CC1P | CC1E
               *  2, 3 | CC4NP | <RES> | CC4P | CC4E | CC3NP | <RES> | CC3P | CC3E | CC2NP | <RES> | CC2P | CC2E | CC1NP | <RES> | CC1P | CC1E
+              *  14   |       | <RES> |      |      |       |       |      |      |       |       |      |      | CC1NP |       | CC1P | CC1E
               */
 
              CNT,    // 0x24 (16 bits), TIM2 uses (32 bits or top 16 bits?)
@@ -124,6 +131,11 @@ typedef struct {
 
              DMAR,   // 0x4C - unused in [14, 6] (16 bits)
              OR;     // 0x50 - unused in [1, 2, 3, 15, 16, 17, 6]
+             /*
+              * Timer | 0
+              * -----------
+              *  14   | TI1_RMP
+              */
 } Timer;
 
 

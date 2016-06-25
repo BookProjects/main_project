@@ -186,10 +186,10 @@ typedef struct {
               *
               *  TS (Trigger Selection)
               *  - Trigger input to synchronize the timer
-              *  - 000: ITR0 (Internal Trigger)
-              *  - 001: ITR1
-              *  - 010: ITR2
-              *  - 011: ITR3
+              *  - 000: ITR0 (Internal Trigger) (TIM15)
+              *  - 001: ITR1 (TIM2)
+              *  - 010: ITR2 (TIM3)
+              *  - 011: ITR3 (TIM17)
               *  - 100: TI1F_ED (TI1 Edge Detector)
               *  - 101: TI1FP1 (Filtered Time Input)
               *  - 110: TI2FP2

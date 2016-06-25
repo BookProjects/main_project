@@ -311,7 +311,7 @@ typedef struct {
               *  - Prescaler counter is cleared too
               */
 
-             CCMR1,  // 0x18 - unused in [6]
+             CCMR1,  // 0x18 - unused in [6] (Capture/Compare Mode Register)
              /*
               * (____________________________ OUTPUT COMPARE MODE _______________________________________)
               * Timer       | 15    | 14 : 12 | 11    | 10    | 9 : 8 | 7     | 6 : 4 |  3    | 2     | 1 : 0
@@ -325,6 +325,69 @@ typedef struct {
               * ---------------------------------------------------------------------------------------------------
               *  1, 2, 3, 15 | IC2F    | IC2PSC |                 CC2S | IC1F  | IC1PSC | CC1S
               *  14, 16, 17  |         |        |                      | IC1F  | IC1PSC | CC1S
+              *
+              *  __OUTPUT__
+              *
+              *  OCxCE (Output Compare x Clear Enable)
+              *  - 0: OCxREF is not affected by ETRF
+              *  - 1: OCxREF is cleared w/ HIGH ETRF
+              *
+              *  OCxM (Output Compare x Mode)
+              *  - defines output of OCxREF (OCx and OCxN are derived from),
+              *    OCxREF is active high. Active level of OCx and OCxN depend on
+              *    CCxP and CCxNP
+              *  - 000: Frozen - Comparison between CCRx and CNT doesn't change
+              *                  output (used for generating timing base)
+              *  - 001: Set chx HIGH when CCRx == CNT
+              *  - 010: Set chx LOW when CCRx == CNT
+              *  - 011: Toggle chx when CCRx == CNT
+              *  - 100: Force LOW
+              *  - 101: Force HIGH
+              *  - 110: PWM Mode 1
+              *    - upcounting:  chx HIGH while CNT < CCRx, else LOW
+              *    - downcounting: chx LOW while CNT > CCRx, else HIGH
+              *  - 111: PWM Mode 2
+              *    - upcounting:    chx LOW while CNT < CCRx, else HIGH
+              *    - downcounting: chx HIGH while CNT > CCRx, else LOW
+              *  - __NOTES__:
+              *    - Can't write while LOCK_lvl == 3 in BDTR & output configured (CCxS = 00)
+              *    - In PWM modes, OCxREF only changes when comparison result
+              *      changes or output compare mode switch from Frozen to PWM
+              *    - Channels w/ compl. output this bitfield is preloaded. If
+              *      CCPC is set in CR2, then OCxM active bits take new value
+              *      fro mthe preloaded bits only when a COM event is generated
+              *
+              *  OCxPE (Output Compare x Preload Enable)
+              *  - 0: Preload register on CCRx disabled. New writes to CCRx are
+              *       used immediately
+              *  - 1: R/W access the preloaded register, set to active at each
+              *       update event
+              *  - __NOTES__:
+              *    - Can't be modified when LOCK_lvl = 3 and CCxS = 00
+              *    - PWM Mode can be used w/o validating preload register only
+              *      in one pulse mode (OPM set in CR1), otherwise undefined
+              *
+              *  OCxFE (Output Compare x Fast Enable)
+              *  - 0: Minimum delay to activate CCx out is 5 clock cycles
+              *  - 1: Reduced to 3 clock cycles, only works in PWM Mode
+              *
+              *  __INPUT__
+              *
+              *  ICxF (Input Capture x Filter)
+              *  - Same filter as ETF
+              *
+              *  ICxPSC (Input Capture x Prescaler)
+              *  - Capture done every (2 ^ ICxPSC) events
+              *
+              *  __COMMON__
+              *
+              *  CCxS(Capture/Compare x Selection)
+              *  - 00: OUTPUT
+              *  - 01: INPUT (ICx mapped to TIx)
+              *  - 10: INPUT (ICx mapped to TI<x_other>), e.g.) x = 1, x_other =  2
+              *  - 11: INPUT (ICx mapped to TRC, only works if internal trigger selected through TS bit on SMCR)
+              *  - __NOTE__: only writeable when channel is off (CCxE = 0 in CCER)
+              *
               */
 
              CCMR2,  // 0x1C - unused in [14, 15, 16, 17, 6]
@@ -338,6 +401,8 @@ typedef struct {
               * Timer    | 15 : 12 | 11 :10 |                9 : 8 | 7 : 4 |  3 : 2 | 1 : 0
               * ---------------------------------------------------------------------------------------------------
               *  1, 2, 3 | IC4F    | IC4PSC |                 CC4S | IC3F  | IC3PSC | CC3S
+              *
+              *  SEE CCMR1
               */
 
              CCER,   // 0x20 - unused in [6]

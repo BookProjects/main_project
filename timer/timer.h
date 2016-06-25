@@ -234,7 +234,7 @@ typedef struct {
               *  UIE (Update Interrupt Enable)
               */
 
-             SR,     // 0x10
+             SR,     // 0x10 (Status Register)
              /*
               * Timer   |                12    | 11    | 10    | 9     | 8     | 7     | 6   | 5     |  4    |  3    | 2     | 1     | 0
               * -------------------------------------------------------------------------------------------------------------------------
@@ -244,6 +244,37 @@ typedef struct {
               *  15     |                      |       | CC2OF | CC1OF | <RES> | BIF   | TIF | COMIF |       |       | CC2IF | CC1IF | UIF
               *  16, 17 |                      |       |       | CC1OF | <RES> | BIF   | TIF | COMIF |       |       |       | CC1IF | UIF
               *  6      |                      |       |       |       |       |       |     |       |       |       |       |       | UIF
+              *
+              *  CCxOF (Capture/Compare x Overcapture Flag)
+              *  - Only when corresponding channel in input capture mode,
+              *    cleared by SW writing a 0
+              *  - 0: No overcapture detected
+              *  - 1: Counter value has been captured in CCRx while CCxIF flag was set
+              *
+              *  BIF (Break Interrupt Flag)
+              *  - set by HW when break input is active, only clearable by SW when no longer active
+              *
+              *  TIF (Trigger Interrupt Flag)
+              *  - HW set on active edge of TRGI when slave mode not gated
+              *
+              *  COMIF (COM Interrupt Flag)
+              *  - Set on COM event (Capture/Compare ctrl bits - CCxE, CCxNE, OCxM have been updated)
+              *
+              *  CCxIF (Capture/Compare x Interrupt Flag)
+              *  - When CCx is OUTPUT:
+              *    - Set when counter matches compare val (w/ some exception in center-aligned mode)
+              *    - 1: CNT = CCRx, when CCRx > ARR CCxIF goes high on overflow
+              *         (in upcounting and up/down-counting mode) or underflow (in downcounting mode)
+              *  - When CCx is INPUT:
+              *    - Set on capture (edge on ICx with right polarity), cleared by SW, or reading CCRx
+              *
+              *  UIF (Update Interrupt Flag)
+              *  - 1: Update interrupt pending, set by HW when registers are
+              *  updated.
+              *  - Conditions for UEV:
+              *    - Overflow or underflow if rep. counter = 0 & UDIS=0 in CR1
+              *    - CNT reinitialized by SW using UG bit in EGR, if URS = 0 & UDIS = 0 in CR1
+              *    - CNT reinitialized by a trigger event if URS = 0 & UDIS = 0
               */
 
              EGR,    // 0x14

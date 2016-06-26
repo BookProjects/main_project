@@ -457,21 +457,82 @@ typedef struct {
               */
 
              CNT,    // 0x24 (16 bits), TIM2 uses (32 bits or top 16 bits?)
-             PSC,    // 0x28 (16 bits)
-             ARR,    // 0x2C (16 bits), TIM2 uses (32 bits or top 16 bits?)
+             PSC,    // 0x28 (16 bits, Prescaler, ck_cnt = f_ck_psc / (PSC[15:0] + 1), reloaded on UEV)
+             ARR,    // 0x2C (16 bits), TIM2 uses (32 bits or top 16 bits?, auto-reload register, counter blocked when null)
 
              RCR,    // 0x30 - unused in [2, 3, 14, 6] (8 bits)
+             /*
+              * Repetition Counter Register
+              * Setup the update rate of the compare registers (transfer from
+              * preload to active regs), when REP_CNT = 0, UEV is generated
+              */
 
              CCR1,   // 0x34 - unused in [6] (16 bits), TIM2 uses (32 bits or top 16 bits?)
              CCR2,   // 0x38 - unused in [14, 16, 17, 6] (16 bits), TIM2 uses (32 bits or top 16 bits?)
              CCR3,   // 0x3C - unused in [14, 15, 16, 17, 6] (16 bits), TIM2 uses (32 bits or top 16 bits?)
              CCR4,   // 0x40 - unused in [14, 15, 16, 17, 6] (16 bits), TIM2 uses (32 bits or top 16 bits?)
+             /*
+              */
 
-             BDTR,   // 0x44 - unused in [2, 3, 14, 6]
+             BDTR,   // 0x44 - unused in [2, 3, 14, 6] (Break and Dead-Time Register)
              /*
               * Timer          | 15  | 14  | 13  | 12  | 11   | 10   | 9 : 8 | 7 : 0
               * ---------------------------------------------------------------------
-              *  1, 15, 16, 17 | MOE | AOE | BKP | BKE | OSSR | OSSI | LOCK  | DT
+              *  1, 15, 16, 17 | MOE | AOE | BKP | BKE | OSSR | OSSI | LOCK  | DTG
+              *
+              *  __NOTE__: These can get write-locked, so set all bits on first
+              *            write to be careful
+              *
+              * MOE (Main Output Enable)
+              * - 0: OC and OCN outputs are disabled or forced to idle state
+              * - 1: OC and OCN outputs are enabled if the respective enable
+              *      bits are set (CCxE and CCxNE in CCER)
+              *
+              * AOE (Automatic Output Enable)
+              * - 0: MOE can only be set by SW
+              * - 1: MOE can be set by SW or automatically at next UEV (if break input is not active)
+              * - __NOTE__: Can't set when LOCK_lvl = 1
+              *
+              * BKP (Break Polarity)
+              * - 0: Break input BRK is active LOW
+              * - 1: Break input BRK is active HIGH
+              * - __NOTE__: Can't set when LOCK_lvl = 1, delay of 1 APB clock cycle when writing
+              *
+              * BKE (Break Enable)
+              * - 0: Break inputs (BRK and CCS clock failure event) disabled
+              * - 1: Break inputs (BRK and CCS clock failure event) enabled
+              * - __NOTE__: Can't set when LOCK_lvl = 1, delay of 1 APB clock cycle when writing
+              *
+              * OSSR (Off-state Selection for Run Mode)
+              * - Used when MOE = 1 & channel has complementary output
+              * - 0: When inactive, OC/OCN outputs are disabled
+              * - 1: When inactive, OC/OCN outputs are enabled with inactive lvl as soon as CCxE=1 or CCxNE=1,
+              *      then OC/OCN enable output signal=1
+              * - __NOTE__: Can't set when LOCK_lvl = 2
+              *
+              * OSSI (Off-state Selection for Idle Mode)
+              * - Used when MOE = 0 & channel has complementary output
+              * - 0: When inactive, OC/OCN outputs are disabled
+              * - 1: When inactive, OC/OCN outputs are forced first with idle lvl as soon as CCxE=1 or CCxNE=1,
+              *      then OC/OCN enable output signal=1
+              *
+              * LOCK (Lock Configuration)
+              * - 00: OFF
+              * - 01: Level 1 - Can't write [BKP, BKE, AOE, DTG in BDTR, OISx and OISxN in CR2]
+              * - 10: Level 2 - Level 1 + [OSSR, OSSI in BDTR and (CC Polarity bits) CCxP, CCxNP in CERR as long as channel configured in output through CCxS)
+              * - 11: Level 3 - Level 2 + CC Control bits (OCxM and OCxPE in CCMRx as long as channel configured in output through CCxS)
+              * - __NOTE__: Can only be written once after reset
+              *
+              * DTG (Dead-time Generator Setup)
+              * - Defines duration of dead-time between complementary outputs,
+              *   aka DT
+              * - For DTG[7:5]
+              *   - 0xx: DT = DTG[7:0] * t_DTS
+              *   - 10x: DT = (64 + DTG[5:0]) * 2 * t_DTS
+              *   - 110: DT = (32 + DTG[4:0]) * 8 * t_DTS
+              *   - 111: DT = (32 + DTG[4:0]) * 16 * t_DTS
+              * - __NOTE__: Can't be modified if LOCK > 0
+              *
               */
 
              DCR,    // 0x48 - unused in [14, 6]

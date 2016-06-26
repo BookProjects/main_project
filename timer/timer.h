@@ -405,7 +405,7 @@ typedef struct {
               *  SEE CCMR1
               */
 
-             CCER,   // 0x20 - unused in [6]
+             CCER,   // 0x20 - unused in [6] (Capture/Compare Enable Register)
              /*
               * Timer   | 15    | 14    | 13   | 12   | 11    | 10    | 9    | 8    | 7     | 6     | 5    | 4    | 3     | 2     | 1     | 0
               * --------------------------------------------------------------------------
@@ -414,6 +414,46 @@ typedef struct {
               *  14     |       | <RES> |      |      |       |       |      |      |       |       |      |      | CC1NP |       | CC1P | CC1E
               *  15     |       | <RES> |      |      |       |       |      |      | CC2NP |       | CC2P | CC2E | CC1NP | CC1NE | CC1P | CC1E
               *  16, 17 |       | <RES> |      |      |       |       |      |      |       |       |      |      | CC1NP | CC1NE | CC1P | CC1E
+              *
+              * __NOTE__:
+              *      - Channels w/ complementary output, these bits are
+              *        preloaded. If CCPC bit is set in CR2, then these get value
+              *        only when Commutation event is generated
+              *
+              *  CCxNP (Capture/Compare x Complementary Output Polarity)
+              *  - __OUTPUT__
+              *    - 0: OCxN active high
+              *    - 1: OCxN active low
+              *
+              *  - __INPUT__
+              *    - Used w/ CCxP to define polarity of TI1FPx and TI2FPx, refer
+              *      to CCxP
+              *    - __NOTE__: Not writable when LOCK >= 2 and CCxS = 00
+              *
+              *  CCxNE (Capture/Compare x Complementary Output Enable)
+              *  - 0: OCxN is not active. OCxN level is fxn of MOE, OSSI, OSSR, OISx, OISxN, & CCxE
+              *  - 1: OCxN output to pin depending on bits shown above
+              *
+              *  CCxP (Capture/Compare x Output Polarity)
+              *  - __OUTPUT__
+              *    - 0: OCx active high
+              *    - 1: OCx active low
+              *  - __INPUT__ (Combine with CCxNP to define polarity of TI1FPx and TI2FPx)
+              *    - (CCxNP,CCxP)
+              *    - 00: NON-INVERTED (gated or encoder) RISING-EDGE (reset, external clk, trigger)
+              *    - 01: INVERTED     (                ) FALLING-EDGE (                           )
+              *    - 10: RESERVED __DO NOT USE__
+              *    - 11: NON-INVERTED, both edges. MUST NOT USE in encoder mode
+              *    - __NOTE__: Not Writable when LOCK >= 2
+              *
+              *  CCxE (Capture/Compare x Output Enable)
+              *  - __OUTPUT__:
+              *    - See CCxNE, substitute OCx for OCxN
+              *  - __INPUT__:
+              *    - 0: Capture of CNT into CCRx disabled
+              *    - 1: Capture of CNT into CCRx enabled
+              *
+              *  See Table 45 (P 282) of reference manual
               */
 
              CNT,    // 0x24 (16 bits), TIM2 uses (32 bits or top 16 bits?)

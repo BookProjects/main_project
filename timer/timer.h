@@ -535,19 +535,37 @@ typedef struct {
               *
               */
 
-             DCR,    // 0x48 - unused in [14, 6]
+             DCR,    // 0x48 - unused in [14, 6] (DMA Control Register)
              /*
               * Timer                | 12 : 8 | 7 : 5 | 4 : 0
               * ------------------------------------------------------------------------
               *  1, 2, 3, 15, 16, 17 | DBL    | <RES> | DBA
+              *
+              *  DBL (DMA Burst Length)
+              *  - Number of Transfers = DBL + 1
+              *  - DBL_max = 17
+              *
+              *  DBA (DMA Base Address)
+              *  - When r/w done through the DMAR address, DBA is offset from CR1
+              *
               */
 
-             DMAR,   // 0x4C - unused in [14, 6] (16 bits)
-             OR;     // 0x50 - unused in [1, 2, 3, 15, 16, 17, 6]
+             DMAR,   // 0x4C - unused in [14, 6] (16 bits) (DMA Address for full transfer)
+             /*
+              * Register for reading / writing data from DMA transfer.
+              * Reads (CR1_ADDR + (DBA + index) * 4, the index is contrroled by
+              *
+              * the transfer.
+              */
+             OR;     // 0x50 - unused in [1, 2, 3, 15, 16, 17, 6] (Timer 14 Option Register)
              /*
               * Timer | 0
               * -----------
               *  14   | TI1_RMP
+              *
+              *  TI1_RMP
+              *  - 0: Tim14 CH1 is connected to the GPIO
+              *  - 1: RTC_CLK is connected to CH1 for calibration
               */
 } Timer;
 

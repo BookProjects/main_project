@@ -8,12 +8,8 @@ typedef volatile uint32_t S_DATA;
 
 
 // Initialization of memory locations
-#ifdef TESTING
-  #include <stdlib.h>
-  #define SYSTEM_INIT(type, base_address) ((type *) calloc(1, sizeof(type)))
-#else
-  #define SYSTEM_INIT(type, base_address) ((type *) base_address)
-#endif
+#define SYSTEM_INIT(type, base_address) ((type *) system_init((void *)base_address, sizeof(type)))
+void * system_init(void *base_address, uint32_t type_size);
 
 #define SYSTEM_WRITE(object, field, value) (system_write(&(object->field), value))
 void system_write(S_DATA *dest, S_DATA value);

@@ -47,10 +47,13 @@ CFLAGS := -std=c99 \
 		  -I$(UNITY_PATH)/extras/fixture/src \
 		  -I$(SRC_PATH) \
 		  -DUNITY_FIXTURES
+LDFLAGS :=
+ARFLAGS := r
 
 # Commands
 COMPILE:=gcc -c
 LINK:=gcc
+AR:=ar
 
 # Make commands
 .PHONY: all
@@ -69,7 +72,7 @@ clean:
 $(OBJ_PATH)/%.o: */%.c
 	$(E)C Compiling $< to $@
 	$(Q)mkdir -p `dirname $@`
-	$(Q)$(COMPILE) -o $@ $< $(CFLAGS) -DTESTING
+	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
 
 $(OBJ_PATH)/%.o: $(UNITY_PATH)/%.c
 	$(E)C Compiling $< to $@
@@ -78,10 +81,10 @@ $(OBJ_PATH)/%.o: $(UNITY_PATH)/%.c
 
 $(PROJECT_LIB): $(OBJ)
 	$(Q)$(AR) $(ARFLAGS) $@ $^
-	ranlib $@
+	$(Q)ranlib $@
 
 # $^ is shorthand for all of the dependencies
 # $@ is shorthand for the target
 $(TEST_TARGET): $(TEST_OBJ) $(UNITY_OBJ) $(PROJECT_LIB)
-	$(E)$(UNITY_OBJ)
-	$(Q)$(LINK) -o $@ $^
+	$(E)"Linking" $@
+	$(Q)$(LINK) $(LDFLAGS) -o $@ $^

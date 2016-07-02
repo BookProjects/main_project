@@ -4,20 +4,21 @@
  * gpio.h STM32F0 GPIO Definitions
  */
 #include "gpio/gpio.h"
+#include "utils/system_memory.h"
 
 // Memory Layout of GPIO as defined by the reference manual
 typedef struct {
-    volatile uint32_t MODER,    // 0x00 (
-                      OTYPER,   // 0x04
-                      OSPEEDR,  // 0x08
-                      PUPDR,    // 0x0C
-                      IDR,      // 0x10
-                      ODR,      // 0x14
-                      BSRR,     // 0x18
-                      LCKR,     // 0x1C
-                      AFRL,     // 0x20
-                      AFRH,     // 0x24
-                      BRR;      // 0x28
+    volatile S_DATA MODER,    // 0x00 (
+                    OTYPER,   // 0x04
+                    OSPEEDR,  // 0x08
+                    PUPDR,    // 0x0C
+                    IDR,      // 0x10
+                    ODR,      // 0x14
+                    BSRR,     // 0x18
+                    LCKR,     // 0x1C
+                    AFRL,     // 0x20
+                    AFRH,     // 0x24
+                    BRR;      // 0x28
 } GPIOStruct;
 
 #define GPIO_A_BASE_ADDRESS 0x48000000

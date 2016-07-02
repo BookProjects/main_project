@@ -46,4 +46,4 @@ clean:
 # $@ is shorthand for the target
 $(TEST_TARGET): $(SRC) $(TEST_SRC) $(UNITY_SRC)
 	echo $(TEST_SRC)
-	$(COMPILE) $(CFLAGS) -o $@ $^
+	$(COMPILE) $(CFLAGS) -DTESTING -o $@ $^

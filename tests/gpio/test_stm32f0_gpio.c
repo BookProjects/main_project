@@ -20,5 +20,6 @@ TEST_TEAR_DOWN(GPIO) {
 TEST(GPIO, Create) {
     uint32_t test_port = 0;
     GPIO test_gpio = gpio_create(test_port);
+    TEST_ASSERT_NOT_NULL(test_gpio);
     TEST_FAIL_MESSAGE("Intentionally Fail");
 }

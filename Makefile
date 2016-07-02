@@ -8,8 +8,8 @@ SRC_PATH := src
 TEST_PATH := tests
 
 # Define files that will get compiled
-SRC := $(SRC_PATH)/gpio/stm32f0_gpio.c
-TEST_SRC := $(TEST_PATH)/gpio/test_stm32f0_gpio.c
+SRC := $(SRC_PATH)/gpio/stm32f0_gpio.c $(SRC_PATH)/utils/system_memory.c
+TEST_SRC := $(TEST_PATH)/gpio/test_stm32f0_gpio.c $(TEST_PATH)/helpers/mock_system_memory.c
 TEST_SRC += $(TEST_PATH)/test_runner.c
 
 UNITY_SRC := $(UNITY_CORE_PATH)/unity.c $(UNITY_EXTRA_PATH)/unity_fixture.c
@@ -44,6 +44,6 @@ clean:
 
 # $^ is shorthand for all of the dependencies
 # $@ is shorthand for the target
-$(TEST_TARGET): $(SRC) $(TEST_SRC) $(UNITY_SRC)
+$(TEST_TARGET): $(TEST_SRC) $(SRC) $(UNITY_SRC)
 	echo $(TEST_SRC)
 	$(COMPILE) $(CFLAGS) -DTESTING -o $@ $^

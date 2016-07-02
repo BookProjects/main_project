@@ -1,8 +1,10 @@
 #ifndef SYSTEM_MEMORY_H
 #define SYSTEM_MEMORY_H
 
-typedef uint32_t SYSTEM_DATA;
-typedef uint32_t S_DATA;
+#include <stdint.h>
+
+typedef volatile uint32_t SYSTEM_DATA;
+typedef volatile uint32_t S_DATA;
 
 
 // Initialization of memory locations
@@ -13,9 +15,11 @@ typedef uint32_t S_DATA;
   #define SYSTEM_INIT(type, base_address) ((type *) base_address)
 #endif
 
-#define SYSTEM_WRITE(object, field, value) (object->field = value)
+#define SYSTEM_WRITE(object, field, value) (system_write(&(object->field), value))
+void system_write(S_DATA *dest, S_DATA value);
 
-#define SYSTEM_READ(object, field) (object->field)
+#define SYSTEM_READ(object, field) (system_read(&(object->field)))
+S_DATA system_read(S_DATA *src);
 
 // Shortcuts
 #define S_INIT SYSTEM_INIT

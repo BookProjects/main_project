@@ -6,3 +6,9 @@ GPIO gpio_create(uint32_t gpio_port) {
     S_RD(value, IDR);
     return (GPIO) value;
 }
+
+err_t gpio_destroy(GPIO gpio) {
+    GPIOStruct *self = (GPIOStruct *)gpio;
+    S_WR(self, MODER, 0x20);
+    return NOT_OK;
+}

@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "utils/errors.h"
+
 // Forward declaration of struct to maintain hidden data
 typedef struct GPIOStruct *GPIO;
 
@@ -23,8 +25,9 @@ typedef struct GPIOStruct *GPIO;
  * returned.
  */
 GPIO gpio_create(uint32_t gpio_port);
+err_t gpio_destroy(GPIO gpio);
+
 /*
-int32_t gpio_destroy(GPIO gpio_port);
 
 int32_t gpio_configure(GPIO gpio_port, uint32_t configuration);
 int32_t gpio_configure_pin(GPIO gpio_port, uint32_t pin, uint32_t configuration);

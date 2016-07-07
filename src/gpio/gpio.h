@@ -13,7 +13,7 @@ typedef struct GPIOStruct *GPIO;
 
 /*
  * Return a GPIO structure that the user can pass to other methods. Also,
- * initialize the GPIO port as a high impedance input.
+ * initialize the GPIO port as a pull-down input.
  * gpio_port - number corresponding to a particular gpio_port. eg)
  *             0 - GPIO_A
  *             1 - GPIO_B

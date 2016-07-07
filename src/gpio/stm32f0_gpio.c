@@ -15,7 +15,14 @@ static const uint32_t PORT_E = 4;  // Unused GPIO port in STM32F0
 GPIO gpio_create(uint32_t gpio_port) {
     if(gpio_port < NUM_PORTS && gpio_port != PORT_E) {
         GPIOStruct *gpio = S_INIT(GPIOStruct, GPIOPorts[gpio_port]);
-        S_WR(gpio, MODER, 0x20);
+        /* Initialization sequence
+         * MODER -> 0 (All input)
+         * OSPEEDR -> 0 (2MHZ, low speed)
+         * PUPDR -> (each 2 bits is b'10 [pull-down])
+         */
+        S_WR(gpio, MODER, 0x00);
+        S_WR(gpio, OSPEEDR, 0x00);
+        S_WR(gpio, PUPDR, 0xAAAAAAAA);  // 0xA = 0b1010
         return (GPIO) gpio;
     } else {
         return NULL;

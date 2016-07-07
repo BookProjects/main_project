@@ -2,10 +2,7 @@
 #define SYSTEM_MEMORY_H
 
 #include <stdint.h>
-
-typedef volatile uint32_t SYSTEM_DATA;
-typedef volatile uint32_t S_DATA;
-
+#include "utils/system_memory_internals.h"
 
 // Initialization of memory locations
 #define SYSTEM_INIT(type, base_address) ((type *) system_init((void *)base_address, sizeof(type)))
@@ -15,10 +12,8 @@ void * system_init(void *base_address, uint32_t type_size);
 void system_delete(void *base_address);
 
 #define SYSTEM_WRITE(object, field, value) (system_write(&(object->field), value))
-void system_write(S_DATA *dest, S_DATA value);
 
 #define SYSTEM_READ(object, field) (system_read(&(object->field)))
-S_DATA system_read(S_DATA *src);
 
 // Shortcuts
 #define S_INIT SYSTEM_INIT

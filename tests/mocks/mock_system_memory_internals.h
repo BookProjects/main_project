@@ -20,6 +20,8 @@ void Mocksystem_memory_internals_Verify(void);
 
 
 
+#define system_init_ExpectAndReturn(base_address, type_size, cmock_retval) system_init_CMockExpectAndReturn(__LINE__, base_address, type_size, cmock_retval)
+void system_init_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, void* base_address, uint32_t type_size, void* cmock_to_return);
 #define system_write_Expect(dest, value) system_write_CMockExpect(__LINE__, dest, value)
 void system_write_CMockExpect(UNITY_LINE_TYPE cmock_line, S_DATA* dest, S_DATA value);
 #define system_read_ExpectAndReturn(src, cmock_retval) system_read_CMockExpectAndReturn(__LINE__, src, cmock_retval)

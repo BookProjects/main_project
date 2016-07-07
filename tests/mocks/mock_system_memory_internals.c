@@ -6,11 +6,23 @@
 #include "cmock.h"
 #include "mock_system_memory_internals.h"
 
+static const char* CMockString_base_address = "base_address";
 static const char* CMockString_dest = "dest";
 static const char* CMockString_src = "src";
+static const char* CMockString_system_init = "system_init";
 static const char* CMockString_system_read = "system_read";
 static const char* CMockString_system_write = "system_write";
+static const char* CMockString_type_size = "type_size";
 static const char* CMockString_value = "value";
+
+typedef struct _CMOCK_system_init_CALL_INSTANCE
+{
+  UNITY_LINE_TYPE LineNumber;
+  void* ReturnVal;
+  void* Expected_base_address;
+  uint32_t Expected_type_size;
+
+} CMOCK_system_init_CALL_INSTANCE;
 
 typedef struct _CMOCK_system_write_CALL_INSTANCE
 {
@@ -30,6 +42,7 @@ typedef struct _CMOCK_system_read_CALL_INSTANCE
 
 static struct Mocksystem_memory_internalsInstance
 {
+  CMOCK_MEM_INDEX_TYPE system_init_CallInstance;
   CMOCK_MEM_INDEX_TYPE system_write_CallInstance;
   CMOCK_MEM_INDEX_TYPE system_read_CallInstance;
 } Mock;
@@ -39,6 +52,8 @@ extern jmp_buf AbortFrame;
 void Mocksystem_memory_internals_Verify(void)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
+  UNITY_SET_DETAIL(CMockString_system_init);
+  UNITY_TEST_ASSERT(CMOCK_GUTS_NONE == Mock.system_init_CallInstance, cmock_line, CMockStringCalledLess);
   UNITY_SET_DETAIL(CMockString_system_write);
   UNITY_TEST_ASSERT(CMOCK_GUTS_NONE == Mock.system_write_CallInstance, cmock_line, CMockStringCalledLess);
   UNITY_SET_DETAIL(CMockString_system_read);
@@ -54,6 +69,48 @@ void Mocksystem_memory_internals_Destroy(void)
 {
   CMock_Guts_MemFreeAll();
   memset(&Mock, 0, sizeof(Mock));
+}
+
+void* system_init(void* base_address, uint32_t type_size)
+{
+  UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
+  UNITY_SET_DETAIL(CMockString_system_init);
+  CMOCK_system_init_CALL_INSTANCE* cmock_call_instance = (CMOCK_system_init_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.system_init_CallInstance);
+  Mock.system_init_CallInstance = CMock_Guts_MemNext(Mock.system_init_CallInstance);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
+  cmock_line = cmock_call_instance->LineNumber;
+  {
+    UNITY_SET_DETAILS(CMockString_system_init,CMockString_base_address);
+    if (cmock_call_instance->Expected_base_address == NULL)
+      { UNITY_TEST_ASSERT_NULL(base_address, cmock_line, CMockStringExpNULL); }
+    else
+      { /* DO NOTHING (these are HW addresses) UNITY_TEST_ASSERT_EQUAL_HEX8_ARRAY(cmock_call_instance->Expected_base_address, base_address, 1, cmock_line, CMockStringMismatch); */ }
+  }
+  {
+    UNITY_SET_DETAILS(CMockString_system_init,CMockString_type_size);
+    UNITY_TEST_ASSERT_EQUAL_HEX32(cmock_call_instance->Expected_type_size, type_size, cmock_line, CMockStringMismatch);
+  }
+  UNITY_CLR_DETAILS();
+  return cmock_call_instance->ReturnVal;
+}
+
+void CMockExpectParameters_system_init(CMOCK_system_init_CALL_INSTANCE* cmock_call_instance, void* base_address, uint32_t type_size)
+{
+  cmock_call_instance->Expected_base_address = base_address;
+  cmock_call_instance->Expected_type_size = type_size;
+}
+
+void system_init_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, void* base_address, uint32_t type_size, void* cmock_to_return)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_system_init_CALL_INSTANCE));
+  CMOCK_system_init_CALL_INSTANCE* cmock_call_instance = (CMOCK_system_init_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
+  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
+  Mock.system_init_CallInstance = CMock_Guts_MemChain(Mock.system_init_CallInstance, cmock_guts_index);
+  cmock_call_instance->LineNumber = cmock_line;
+  CMockExpectParameters_system_init(cmock_call_instance, base_address, type_size);
+  cmock_call_instance->ReturnVal = cmock_to_return;
+  UNITY_CLR_DETAILS();
 }
 
 void system_write(S_DATA* dest, S_DATA value)

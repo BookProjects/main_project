@@ -29,6 +29,12 @@ GPIO gpio_create(uint32_t gpio_port) {
     }
 }
 
+err_t gpio_port_configure(GPIO gpio, GPIOConfig config) {
+    GPIOStruct *self = (GPIOStruct *)gpio;
+    S_WR(self, MODER, expand_nibble(config.type, 2, 16));
+    return OK;
+}
+
 err_t gpio_destroy(GPIO gpio) {
     S_DEL((GPIOStruct *) gpio);
     return OK;

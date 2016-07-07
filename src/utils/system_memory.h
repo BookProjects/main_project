@@ -1,7 +1,6 @@
 #ifndef SYSTEM_MEMORY_H
 #define SYSTEM_MEMORY_H
 
-#include <stdint.h>
 #include "utils/system_memory_internals.h"
 
 // Initialization of memory locations

@@ -11,6 +11,39 @@
 // Forward declaration of struct to maintain hidden data
 typedef struct GPIOStruct *GPIO;
 
+typedef uint8_t GPIOPin;
+
+typedef enum {
+    INPUT  = 0,
+    OUTPUT = 1,
+    ALT    = 2,
+    ANALOG = 3
+} GPIOType;
+
+typedef enum {
+    PUSH_PULL = 0,
+    OPEN_DRAIN = 1
+} GPIOOutputType;
+
+typedef enum {
+    LOW_SPEED = 0,
+    MED_SPEED = 1,
+    HIGH_SPEED = 3
+} GPIOSpeed;
+
+typedef enum {
+    NO_PULL = 0,
+    PULL_UP = 1,
+    PULL_DOWN = 2
+} GPIOPull;
+
+typedef struct {
+    GPIOType type;
+    GPIOOutputType output_type;
+    GPIOSpeed speed;
+    GPIOPull pull;
+} GPIOConfig;
+
 /*
  * Return a GPIO structure that the user can pass to other methods. Also,
  * initialize the GPIO port as a pull-down input.
@@ -27,6 +60,8 @@ typedef struct GPIOStruct *GPIO;
  *             pointer will be returned.
  */
 GPIO gpio_create(uint32_t gpio_port);
+err_t gpio_port_configure(GPIO gpio, GPIOConfig config);
+err_t gpio_pin_configure(GPIO gpio, GPIOConfig config, GPIOPin pin);
 err_t gpio_destroy(GPIO gpio);
 
 /*

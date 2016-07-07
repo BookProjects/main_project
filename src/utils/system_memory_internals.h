@@ -1,9 +1,7 @@
 #ifndef SYSTEM_MEMORY_INTERNALS_H
 #define SYSTEM_MEMORY_INTERNALS_H
 
-
-typedef volatile uint32_t SYSTEM_DATA;
-typedef volatile uint32_t S_DATA;
+#include "utils/common.h"
 
 void * system_init(void *base_address, uint32_t type_size);
 extern void (*system_write)(S_DATA *, S_DATA);

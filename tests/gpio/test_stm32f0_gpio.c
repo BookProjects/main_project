@@ -8,6 +8,7 @@ TEST_GROUP(GPIO);
 TEST_GROUP_RUNNER(GPIO) {
     RUN_TEST_CASE(GPIO, CreateAndDestroy);
     RUN_TEST_CASE(GPIO, CreateGoodPorts);
+    RUN_TEST_CASE(GPIO, TryCreatingBadPorts);
 }
 
 TEST_SETUP(GPIO) {
@@ -47,6 +48,15 @@ TEST(GPIO, CreateGoodPorts) {
         system_init_expect(port_addresses[i]);
         GPIO test_gpio = gpio_create(good_ports[i]);
         TEST_ASSERT_NOT_NULL(test_gpio);
+        gpio_destroy(test_gpio);
+    }
+}
+
+TEST(GPIO, TryCreatingBadPorts) {
+    uint32_t bad_ports[] = {4, 6, 7, 200, (uint32_t) -1};
+    for(int i = 0; i < 5; ++i) {
+        GPIO test_gpio = gpio_create(bad_ports[i]);
+        TEST_ASSERT_NULL(test_gpio);
         gpio_destroy(test_gpio);
     }
 }

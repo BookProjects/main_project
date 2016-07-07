@@ -7,6 +7,7 @@ TEST_GROUP(GPIO);
 
 TEST_GROUP_RUNNER(GPIO) {
     RUN_TEST_CASE(GPIO, CreateAndDestroy);
+    RUN_TEST_CASE(GPIO, CreateGoodPorts);
 }
 
 TEST_SETUP(GPIO) {
@@ -21,10 +22,31 @@ TEST_TEAR_DOWN(GPIO) {
 // A private struct that takes the place of gpio
 static GPIOStruct test_gpio;
 
+static void system_init_expect(uintptr_t address) {
+    system_init_ExpectAndReturn((void *)address, sizeof(GPIOStruct), &test_gpio);
+}
+
 TEST(GPIO, CreateAndDestroy) {
     uint32_t test_port = 0;
-    system_init_ExpectAndReturn((void *)GPIO_A_BASE_ADDRESS, sizeof(GPIOStruct), &test_gpio);
+    system_init_expect(GPIO_A_BASE_ADDRESS);
     GPIO test_gpio = gpio_create(test_port);
     TEST_ASSERT_NOT_NULL(test_gpio);
     TEST_ASSERT_EQUAL_UINT32(OK, gpio_destroy(test_gpio));
+}
+
+TEST(GPIO, CreateGoodPorts) {
+    uint32_t good_ports[] = {0, 1, 2, 3, 5};
+    uintptr_t port_addresses[] = {
+        GPIO_A_BASE_ADDRESS,
+        GPIO_B_BASE_ADDRESS,
+        GPIO_C_BASE_ADDRESS,
+        GPIO_D_BASE_ADDRESS,
+        GPIO_F_BASE_ADDRESS
+    };
+    for(int i = 0; i < 5; ++i) {
+        system_init_expect(port_addresses[i]);
+        GPIO test_gpio = gpio_create(good_ports[i]);
+        TEST_ASSERT_NOT_NULL(test_gpio);
+        gpio_destroy(test_gpio);
+    }
 }

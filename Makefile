@@ -7,9 +7,10 @@ else
 	E = @echo 
 endif
 
-# Define Unity paths for testing
+# Define testing tool paths
 UNITY_PATH := $(UNITY_SOURCE)
 UNITY_EXTRA_PATH := $(UNITY_PATH)/extras/fixture/src
+CMOCK_PATH := $(CMOCK_SOURCE)
 
 # Define library paths
 SRC_PATH := src
@@ -22,7 +23,7 @@ OBJ_PATH := $(BUILD_PATH)/obj
 # Define files that will get compiled
 _SRC := gpio/stm32f0_gpio.c utils/system_memory.c
 SRC := $(patsubst %,$(SRC_PATH)/%,$(_SRC))
-_TEST_SRC := gpio/test_stm32f0_gpio.c helpers/mock_system_memory.c
+_TEST_SRC := gpio/test_stm32f0_gpio.c mocks/mock_system_memory.c mocks/mock_system_memory_internals.c
 _TEST_SRC += test_runner.c
 TEST_SRC := $(patsubst %,$(TEST_PATH)/%,$(_TEST_SRC))
 
@@ -36,6 +37,11 @@ SRC := $(patsubst %,$(UNITY_PATH)/%,$(_UNITY_SRC))
 _UNITY_OBJ := $(_UNITY_SRC:.c=.o)
 UNITY_OBJ := $(patsubst %,$(OBJ_PATH)/%,$(_UNITY_OBJ))
 
+_CMOCK_SRC := src/cmock.c
+CMOCK_SRC := $(patsubst %,$(CMOCK_PATH)/,%(_CMOCK_SRC))
+_CMOCK_OBJ := $(_CMOCK_SRC:.c=.o)
+CMOCK_OBJ := $(patsubst %,$(OBJ_PATH)/%,$(_CMOCK_OBJ))
+
 PROJECT_LIB := main_project.a
 TEST_TARGET := $(BUILD_PATH)/run_test.out
 
@@ -45,6 +51,7 @@ CFLAGS := -std=c99 \
 		  -I. \
 		  -I$(UNITY_PATH)/src \
 		  -I$(UNITY_PATH)/extras/fixture/src \
+		  -I$(CMOCK_PATH)/src \
 		  -I$(SRC_PATH) \
 		  -DUNITY_FIXTURES
 LDFLAGS :=
@@ -79,12 +86,17 @@ $(OBJ_PATH)/%.o: $(UNITY_PATH)/%.c
 	$(Q)mkdir -p `dirname $@`
 	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
 
+$(OBJ_PATH)/%.o: $(CMOCK_PATH)/%.c
+	$(E)C Compiling $< to $@
+	$(Q)mkdir -p `dirname $@`
+	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+
 $(PROJECT_LIB): $(OBJ)
 	$(Q)$(AR) $(ARFLAGS) $@ $^
 	$(Q)ranlib $@
 
 # $^ is shorthand for all of the dependencies
 # $@ is shorthand for the target
-$(TEST_TARGET): $(TEST_OBJ) $(UNITY_OBJ) $(PROJECT_LIB)
+$(TEST_TARGET): $(TEST_OBJ) $(UNITY_OBJ) $(CMOCK_OBJ) $(PROJECT_LIB)
 	$(E)"Linking" $@
 	$(Q)$(LINK) $(LDFLAGS) -o $@ $^

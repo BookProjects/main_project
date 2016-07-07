@@ -9,6 +9,7 @@ TEST_GROUP_RUNNER(GPIO) {
     RUN_TEST_CASE(GPIO, CreateAndDestroy);
     RUN_TEST_CASE(GPIO, CreateGoodPorts);
     RUN_TEST_CASE(GPIO, TryCreatingBadPorts);
+    RUN_TEST_CASE(GPIO, ProperInitialization);
 }
 
 TEST_SETUP(GPIO) {
@@ -59,4 +60,12 @@ TEST(GPIO, TryCreatingBadPorts) {
         TEST_ASSERT_NULL(test_gpio);
         gpio_destroy(test_gpio);
     }
+}
+
+TEST(GPIO, ProperInitialization) {
+    system_init_expect(GPIO_A_BASE_ADDRESS);
+    UT_PTR_SET(system_write, mock_system_write_impl);
+    system_write_Expect(&(test_gpio.MODER), 0x20);
+    GPIO test_gpio = gpio_create(0);
+    gpio_destroy(test_gpio);
 }

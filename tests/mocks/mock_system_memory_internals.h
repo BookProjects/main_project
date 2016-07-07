@@ -18,6 +18,7 @@ void Mocksystem_memory_internals_Destroy(void);
 void Mocksystem_memory_internals_Verify(void);
 
 
+void mock_system_write_impl(S_DATA* dest, S_DATA value);
 
 
 #define system_init_ExpectAndReturn(base_address, type_size, cmock_retval) system_init_CMockExpectAndReturn(__LINE__, base_address, type_size, cmock_retval)

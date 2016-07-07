@@ -12,6 +12,8 @@
 typedef struct GPIOStruct *GPIO;
 
 /*
+ * Return a GPIO structure that the user can pass to other methods. Also,
+ * initialize the GPIO port as a high impedance input.
  * gpio_port - number corresponding to a particular gpio_port. eg)
  *             0 - GPIO_A
  *             1 - GPIO_B
@@ -20,9 +22,9 @@ typedef struct GPIOStruct *GPIO;
  *             4 - GPIO_E
  *             5 - GPIO_F
  *
- * It is the caller's responsibility to use the right port number for the
- * particular hardware. If an invalid port is used, a NULL pointer will be
- * returned.
+ *             It is the caller's responsibility to use the right port number
+ *             for the particular hardware. If an invalid port is used, a NULL
+ *             pointer will be returned.
  */
 GPIO gpio_create(uint32_t gpio_port);
 err_t gpio_destroy(GPIO gpio);

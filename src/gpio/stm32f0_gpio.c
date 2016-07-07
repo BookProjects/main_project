@@ -14,7 +14,9 @@ static const uint32_t PORT_E = 4;  // Unused GPIO port in STM32F0
 
 GPIO gpio_create(uint32_t gpio_port) {
     if(gpio_port < NUM_PORTS && gpio_port != PORT_E) {
-        return (GPIO) S_INIT(GPIOStruct, GPIOPorts[gpio_port]);
+        GPIOStruct *gpio = S_INIT(GPIOStruct, GPIOPorts[gpio_port]);
+        S_WR(gpio, MODER, 0x20);
+        return (GPIO) gpio;
     } else {
         return NULL;
     }

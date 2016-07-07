@@ -121,7 +121,7 @@ void system_init_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, void* base_add
   UNITY_CLR_DETAILS();
 }
 
-void system_write(S_DATA* dest, S_DATA value)
+void mock_system_write_impl(S_DATA* dest, S_DATA value)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   UNITY_SET_DETAIL(CMockString_system_write);

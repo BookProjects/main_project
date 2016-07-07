@@ -11,6 +11,9 @@ typedef volatile uint32_t S_DATA;
 #define SYSTEM_INIT(type, base_address) ((type *) system_init((void *)base_address, sizeof(type)))
 void * system_init(void *base_address, uint32_t type_size);
 
+#define SYSTEM_DELETE(base_address) (system_delete((void *)base_address))
+void system_delete(void *base_address);
+
 #define SYSTEM_WRITE(object, field, value) (system_write(&(object->field), value))
 void system_write(S_DATA *dest, S_DATA value);
 
@@ -19,6 +22,7 @@ S_DATA system_read(S_DATA *src);
 
 // Shortcuts
 #define S_INIT SYSTEM_INIT
+#define S_DEL SYSTEM_DELETE
 #define S_WR SYSTEM_WRITE
 #define S_RD SYSTEM_READ
 

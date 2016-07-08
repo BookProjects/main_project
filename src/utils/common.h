@@ -6,6 +6,11 @@
 typedef volatile uint32_t SYSTEM_DATA;
 typedef volatile uint32_t S_DATA;
 
-S_DATA expand_nibble(S_DATA nibble, uint8_t nibble_width, uint8_t num_expansions);
+typedef enum {
+    NIB_1 = 0,
+    NIB_2 = 1
+} NibbleSize;
+
+S_DATA expand_nibble(S_DATA nibble, NibbleSize size);
 
 #endif  // COMMON_UTILS

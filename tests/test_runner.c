@@ -2,6 +2,7 @@
 
 static void RunAllTests(void) {
     RUN_TEST_GROUP(GPIO);
+    RUN_TEST_GROUP(GPIOUsage);
 }
 
 int main(int argc, const char *argv[]) {

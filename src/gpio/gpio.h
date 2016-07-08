@@ -7,6 +7,7 @@
 #include <stddef.h>
 
 #include "utils/errors.h"
+#include "utils/common.h"
 
 // Forward declaration of struct to maintain hidden data
 typedef struct GPIOStruct *GPIO;
@@ -18,12 +19,12 @@ typedef enum {
     OUTPUT = 1,
     ALT    = 2,
     ANALOG = 3
-} GPIOType;
+} GPIOMode;
 
 typedef enum {
     PUSH_PULL = 0,
-    OPEN_DRAIN = 1
-} GPIOOutputType;
+    OPEN_DRAIN = 1  // Only LOW level is driven, when high pin is HI-Z
+} GPIOType;
 
 typedef enum {
     LOW_SPEED = 0,
@@ -38,11 +39,36 @@ typedef enum {
 } GPIOPull;
 
 typedef struct {
+    GPIOMode mode;
     GPIOType type;
-    GPIOOutputType output_type;
     GPIOSpeed speed;
     GPIOPull pull;
-} GPIOConfig;
+} GPIOBaseConfig;
+
+typedef enum {
+    AF0  = 0,
+    AF1  = 1,
+    AF2  = 2,
+    AF3  = 3,
+    AF4  = 4,
+    AF5  = 5,
+    AF6  = 6,
+    AF7  = 7,
+    AF8  = 8,
+    AF9  = 9,
+    AF10 = 10,
+    AF11 = 11,
+    AF12 = 12,
+    AF13 = 13,
+    AF14 = 14,
+    AF15 = 15
+} AFVal;
+
+typedef struct {
+    GPIOBaseConfig base_config;
+    AFVal fxn;
+} GPIOPinConfig;
+
 
 /*
  * Return a GPIO structure that the user can pass to other methods. Also,
@@ -60,9 +86,28 @@ typedef struct {
  *             pointer will be returned.
  */
 GPIO gpio_create(uint32_t gpio_port);
-err_t gpio_port_configure(GPIO gpio, GPIOConfig config);
-err_t gpio_pin_configure(GPIO gpio, GPIOConfig config, GPIOPin pin);
 err_t gpio_destroy(GPIO gpio);
+
+err_t gpio_configure_port(GPIO gpio, GPIOBaseConfig config);
+err_t gpio_configure_pin(GPIO gpio, GPIOPinConfig config, GPIOPin pin);
+
+S_DATA gpio_read_port(GPIO gpio);
+
+/*
+ * Listing of desired functionality
+ *
+ * - Configure whole port or pin
+ *
+ * - Set output status of port or pin
+ *   - Set and reset individual bits
+ * - Get output status of port or pin
+ *
+ * - Get input status of port or pin
+ *
+ * ( STRETCH GOAL )
+ * - Lock port
+ *
+ */
 
 /*
 

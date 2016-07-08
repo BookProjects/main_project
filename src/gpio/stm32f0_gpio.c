@@ -29,13 +29,38 @@ GPIO gpio_create(uint32_t gpio_port) {
     }
 }
 
-err_t gpio_port_configure(GPIO gpio, GPIOConfig config) {
-    GPIOStruct *self = (GPIOStruct *)gpio;
-    S_WR(self, MODER, expand_nibble(config.type, 2, 16));
-    return OK;
-}
-
 err_t gpio_destroy(GPIO gpio) {
     S_DEL((GPIOStruct *) gpio);
     return OK;
+}
+
+err_t gpio_configure_port(GPIO gpio, GPIOBaseConfig config) {
+    GPIOStruct *self = (GPIOStruct *)gpio;
+    S_WR(self, OTYPER, expand_nibble(config.type, NIB_1));
+    S_WR(self, OSPEEDR, expand_nibble(config.speed, NIB_2));
+    S_WR(self, PUPDR, expand_nibble(config.pull, NIB_2));
+    S_WR(self, MODER, expand_nibble(config.mode, NIB_2));
+    return OK;
+}
+
+err_t gpio_configure_pin(GPIO gpio, GPIOPinConfig config, GPIOPin pin) {
+    GPIOStruct *self = (GPIOStruct *)gpio;
+    S_DATA fxn = config.fxn << (pin << 2);  // Shift left pin * 4 times, will wrap
+    if(pin < 8) {
+        S_WR(self, AFRL, fxn);
+    } else if (pin < 16) {
+        S_WR(self, AFRH, fxn);
+    } else {
+        return NOT_OK;
+    }
+    S_WR(self, OTYPER, expand_nibble(config.base_config.type, NIB_1));
+    S_WR(self, OSPEEDR, expand_nibble(config.base_config.speed, NIB_2));
+    S_WR(self, PUPDR, expand_nibble(config.base_config.pull, NIB_2));
+    S_WR(self, MODER, expand_nibble(config.base_config.mode, NIB_2));
+    return OK;
+}
+
+S_DATA gpio_read_port(GPIO gpio) {
+    GPIOStruct *self = (GPIOStruct *)gpio;
+    return S_RD(self, IDR);
 }

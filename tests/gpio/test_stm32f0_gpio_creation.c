@@ -10,7 +10,6 @@ TEST_GROUP_RUNNER(GPIO) {
     RUN_TEST_CASE(GPIO, CreateGoodPorts);
     RUN_TEST_CASE(GPIO, TryCreatingBadPorts);
     RUN_TEST_CASE(GPIO, ProperInitialization);
-    RUN_TEST_CASE(GPIO, PortConfiguration);
 }
 
 TEST_SETUP(GPIO) {
@@ -70,23 +69,5 @@ TEST(GPIO, ProperInitialization) {
     system_write_Expect(&(global_test_gpio.OSPEEDR), 0x00);
     system_write_Expect(&(global_test_gpio.PUPDR), 0xAAAAAAAA);
     GPIO test_gpio = gpio_create(0);
-    gpio_destroy(test_gpio);
-}
-
-TEST(GPIO, PortConfiguration) {
-    system_init_expect(GPIO_A_BASE_ADDRESS);
-    GPIO test_gpio = gpio_create(0);
-
-    GPIOConfig configuration = {
-        .type = OUTPUT,
-        .output_type = PUSH_PULL,
-        .speed = HIGH_SPEED,
-        .pull = NO_PULL
-    };
-
-    UT_PTR_SET(system_write, mock_system_write_impl);
-    system_write_Expect(&(global_test_gpio.MODER), 0x55555555);
-
-    gpio_port_configure(test_gpio, configuration);
     gpio_destroy(test_gpio);
 }

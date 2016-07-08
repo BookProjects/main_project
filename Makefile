@@ -23,7 +23,10 @@ OBJ_PATH := $(BUILD_PATH)/obj
 # Define files that will get compiled
 _SRC := gpio/stm32f0_gpio.c utils/system_memory.c utils/system_memory_internals.c utils/common.c
 SRC := $(patsubst %,$(SRC_PATH)/%,$(_SRC))
-_TEST_SRC := gpio/test_stm32f0_gpio.c mocks/mock_system_memory.c mocks/mock_system_memory_internals.c
+_TEST_SRC := gpio/test_stm32f0_gpio_creation.c \
+			 gpio/test_stm32f0_gpio_usage.c \
+			 mocks/mock_system_memory.c \
+			 mocks/mock_system_memory_internals.c
 _TEST_SRC += test_runner.c
 TEST_SRC := $(patsubst %,$(TEST_PATH)/%,$(_TEST_SRC))
 

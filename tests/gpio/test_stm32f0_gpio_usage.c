@@ -8,6 +8,9 @@ TEST_GROUP(GPIOUsage);
 TEST_GROUP_RUNNER(GPIOUsage) {
     RUN_TEST_CASE(GPIOUsage, PortConfiguration);
     RUN_TEST_CASE(GPIOUsage, PinConfiguration);
+    RUN_TEST_CASE(GPIOUsage, LockConfiguration);
+    RUN_TEST_CASE(GPIOUsage, LockConfigurationOverload);
+    RUN_TEST_CASE(GPIOUsage, LockConfigurationFail);
 
     RUN_TEST_CASE(GPIOUsage, ReadPort);
     RUN_TEST_CASE(GPIOUsage, ReadPin);
@@ -94,6 +97,37 @@ TEST(GPIOUsage, PinConfiguration) {
     system_write_Expect(&(global_test_gpio.MODER), 0x55555555);
 
     gpio_configure_pin(test_gpio, configuration, 10);
+}
+
+static void expect_lock_sequence(S_DATA pins, S_DATA final_value) {
+    S_DATA off_and_pins = (0xFFFF & pins);
+    S_DATA on_and_pins = 0x10000 | off_and_pins;
+    system_write_Expect(&(global_test_gpio.LCKR),         on_and_pins);
+    system_write_Expect(&(global_test_gpio.LCKR),         off_and_pins);
+    system_write_Expect(&(global_test_gpio.LCKR),         on_and_pins);
+    system_read_ExpectAndReturn(&(global_test_gpio.LCKR), off_and_pins);
+    system_read_ExpectAndReturn(&(global_test_gpio.LCKR), final_value | off_and_pins);
+}
+
+TEST(GPIOUsage, LockConfiguration) {
+    // Successful
+    expect_lock_sequence(0xBEEF, 0x10000);
+    TEST_ASSERT_EQUAL_UINT32(
+        OK, gpio_lock_configuration_for_pins(test_gpio,    0xBEEF));
+}
+
+TEST(GPIOUsage, LockConfigurationOverload) {
+    // Overload
+    expect_lock_sequence(0xBEEF, 0x10000);
+    TEST_ASSERT_EQUAL_UINT32(
+        OK, gpio_lock_configuration_for_pins(test_gpio,    0xDEADBEEF));
+}
+
+TEST(GPIOUsage, LockConfigurationFail) {
+    // Failing
+    expect_lock_sequence(0xBEEF, 0);
+    TEST_ASSERT_EQUAL_UINT32(
+        NOT_OK, gpio_lock_configuration_for_pins(test_gpio,    0xBEEF));
 }
 
 TEST(GPIOUsage, ReadPort) {

@@ -70,9 +70,9 @@ typedef struct {
 } GPIOPinConfig;
 
 
+// Initialization and Destruction
 /*
- * Return a GPIO structure that the user can pass to other methods. Also,
- * initialize the GPIO port as a pull-down input.
+ * Return a GPIO structure that the user can pass to other methods.
  * gpio_port - number corresponding to a particular gpio_port. eg)
  *             0 - GPIO_A
  *             1 - GPIO_B
@@ -91,6 +91,7 @@ err_t gpio_destroy(GPIO gpio);
 // Configuration
 err_t gpio_configure_port(GPIO gpio, GPIOBaseConfig config);
 err_t gpio_configure_pin(GPIO gpio, GPIOPinConfig config, GPIOPin pin);
+err_t gpio_lock_configuration_for_pins(GPIO gpio, S_DATA pins);
 
 // Input Functionality
 S_DATA gpio_read_port(GPIO gpio);
@@ -110,12 +111,5 @@ err_t gpio_write_pin(GPIO gpio, GPIOPin pin, S_DATA data);
 err_t gpio_set_pin(GPIO gpio, GPIOPin pin);
 err_t gpio_clear_pin(GPIO gpio, GPIOPin pin);
 
-/*
- * Listing of desired functionality
- *
- * ( STRETCH GOAL )
- * - Lock port
- *
- */
 
 #endif  // GPIO_H

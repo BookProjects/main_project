@@ -14,16 +14,7 @@ static const uint32_t PORT_E = 4;  // Unused GPIO port in STM32F0
 
 GPIO gpio_create(uint32_t gpio_port) {
     if(gpio_port < NUM_PORTS && gpio_port != PORT_E) {
-        GPIOStruct *gpio = S_INIT(GPIOStruct, GPIOPorts[gpio_port]);
-        /* Initialization sequence
-         * MODER -> 0 (All input)
-         * OSPEEDR -> 0 (2MHZ, low speed)
-         * PUPDR -> (each 2 bits is b'10 [pull-down])
-         */
-        S_WR(gpio, MODER, 0x00);
-        S_WR(gpio, OSPEEDR, 0x00);
-        S_WR(gpio, PUPDR, 0xAAAAAAAA);  // 0xA = 0b1010
-        return (GPIO) gpio;
+        return (GPIO) S_INIT(GPIOStruct, GPIOPorts[gpio_port]);
     } else {
         return NULL;
     }
@@ -58,6 +49,21 @@ err_t gpio_configure_pin(GPIO gpio, GPIOPinConfig config, GPIOPin pin) {
     S_WR(self, PUPDR, expand_nibble(config.base_config.pull, NIB_2));
     S_WR(self, MODER, expand_nibble(config.base_config.mode, NIB_2));
     return OK;
+}
+
+err_t gpio_lock_configuration_for_pins(GPIO gpio, S_DATA pins) {
+    GPIOStruct *self = (GPIOStruct *)gpio;
+    S_DATA off = (0xFFFF & pins);
+    S_DATA on = 0x10000 | off;
+    S_WR(self, LCKR, on);
+    S_WR(self, LCKR, off);
+    S_WR(self, LCKR, on);
+    S_RD(self, LCKR);
+    if(0x10000 & S_RD(self, LCKR)) {
+        return OK;
+    } else {
+        return NOT_OK;
+    }
 }
 
 S_DATA gpio_read_port(GPIO gpio) {

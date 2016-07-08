@@ -63,11 +63,9 @@ TEST(GPIO, TryCreatingBadPorts) {
 }
 
 TEST(GPIO, ProperInitialization) {
+    // Ensure nothing is written to
     system_init_expect(GPIO_A_BASE_ADDRESS);
     UT_PTR_SET(system_write, mock_system_write_impl);
-    system_write_Expect(&(global_test_gpio.MODER), 0x00);
-    system_write_Expect(&(global_test_gpio.OSPEEDR), 0x00);
-    system_write_Expect(&(global_test_gpio.PUPDR), 0xAAAAAAAA);
     GPIO test_gpio = gpio_create(0);
     gpio_destroy(test_gpio);
 }

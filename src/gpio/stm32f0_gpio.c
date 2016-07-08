@@ -79,3 +79,39 @@ S_DATA gpio_check_output_pin(GPIO gpio, GPIOPin pin) {
     S_DATA port_data = gpio_check_output_port(gpio);
     return port_data & BIT(pin);
 }
+
+err_t gpio_write_port(GPIO gpio, S_DATA data) {
+    GPIOStruct *self = (GPIOStruct *)gpio;
+    S_WR(self, ODR, data);
+    return OK;
+}
+
+err_t gpio_write_pin(GPIO gpio, GPIOPin pin, S_DATA on) {
+    if(on) {
+        return gpio_set_pin(gpio, pin);
+    } else {
+        return gpio_clear_pin(gpio, pin);
+    }
+}
+
+err_t gpio_set_port(GPIO gpio, S_DATA data) {
+    GPIOStruct *self = (GPIOStruct *)gpio;
+    // Never accidentally reset pins
+    S_WR(self, BSRR, (0xFFFF) & data);
+    return OK;
+}
+
+err_t gpio_set_pin(GPIO gpio, GPIOPin pin) {
+    return gpio_set_port(gpio, BIT(pin));
+}
+
+err_t gpio_clear_port(GPIO gpio, S_DATA data) {
+    GPIOStruct *self = (GPIOStruct *)gpio;
+    // Never accidentally reset pins
+    S_WR(self, BRR, data);
+    return OK;
+}
+
+err_t gpio_clear_pin(GPIO gpio, GPIOPin pin) {
+    return gpio_clear_port(gpio, BIT(pin));
+}

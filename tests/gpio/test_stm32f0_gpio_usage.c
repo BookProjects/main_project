@@ -8,10 +8,19 @@ TEST_GROUP(GPIOUsage);
 TEST_GROUP_RUNNER(GPIOUsage) {
     RUN_TEST_CASE(GPIOUsage, PortConfiguration);
     RUN_TEST_CASE(GPIOUsage, PinConfiguration);
+
     RUN_TEST_CASE(GPIOUsage, ReadPort);
     RUN_TEST_CASE(GPIOUsage, ReadPin);
+
     RUN_TEST_CASE(GPIOUsage, CheckOutputPort);
     RUN_TEST_CASE(GPIOUsage, CheckOutputPin);
+
+    RUN_TEST_CASE(GPIOUsage, WritePort);
+    RUN_TEST_CASE(GPIOUsage, WritePin);
+    RUN_TEST_CASE(GPIOUsage, SetPort);
+    RUN_TEST_CASE(GPIOUsage, SetPin);
+    RUN_TEST_CASE(GPIOUsage, ClearPort);
+    RUN_TEST_CASE(GPIOUsage, ClearPin);
 }
 
 // Used to check addresses
@@ -23,6 +32,7 @@ TEST_SETUP(GPIOUsage) {
     Mocksystem_memory_internals_Init();
     system_init_ExpectAndReturn((void *)GPIO_A_BASE_ADDRESS, sizeof(GPIOStruct), &global_test_gpio);
     test_gpio = gpio_create(0);
+    UT_PTR_SET(system_write, mock_system_write_impl);
 }
 
 TEST_TEAR_DOWN(GPIOUsage) {
@@ -40,7 +50,6 @@ TEST(GPIOUsage, PortConfiguration) {
         .pull = PULL_DOWN
     };
 
-    UT_PTR_SET(system_write, mock_system_write_impl);
     // Type OPEN_DRAIN is 1, expanded gets you 0xFF ->
     // TODO: check that writing to reserved space doesn't break anything
     system_write_Expect(&(global_test_gpio.OTYPER), 0xFFFFFFFF);
@@ -65,7 +74,6 @@ TEST(GPIOUsage, PinConfiguration) {
         .fxn = AF2
     };
 
-    UT_PTR_SET(system_write, mock_system_write_impl);
     // Alternate function pin 1, AF2
     system_write_Expect(&(global_test_gpio.AFRL), 0x20);
     // Last check
@@ -116,4 +124,41 @@ TEST(GPIOUsage, CheckOutputPin) {
     // NOTE: It only returns the bitmasked value, not a constant [1,0]
     system_read_ExpectAndReturn(&(global_test_gpio.ODR), 0x02);
     TEST_ASSERT_EQUAL_HEX32(0x02, gpio_check_output_pin(test_gpio, 1));
+}
+
+TEST(GPIOUsage, WritePort) {
+    system_write_Expect(&(global_test_gpio.ODR), 0xBEEF);
+    gpio_write_port(test_gpio, 0xBEEF);
+}
+
+TEST(GPIOUsage, WritePin) {
+    system_write_Expect(&(global_test_gpio.BSRR), 0x0100);
+    gpio_write_pin(test_gpio, 8, 1);
+    system_write_Expect(&(global_test_gpio.BSRR), 0x0100);
+    gpio_write_pin(test_gpio, 8, 0x55);
+    system_write_Expect(&(global_test_gpio.BRR), 0x0100);
+    gpio_write_pin(test_gpio, 8, 0);
+}
+
+TEST(GPIOUsage, SetPort) {
+    system_write_Expect(&(global_test_gpio.BSRR), 0xDEAD);
+    gpio_set_port(test_gpio, 0xDEAD);
+    // Don't let it overwrite
+    system_write_Expect(&(global_test_gpio.BSRR), 0xBEEF);
+    gpio_set_port(test_gpio, 0xDEADBEEF);
+}
+
+TEST(GPIOUsage, SetPin) {
+    system_write_Expect(&(global_test_gpio.BSRR), 0x0100);
+    gpio_set_pin(test_gpio, 8);
+}
+
+TEST(GPIOUsage, ClearPort) {
+    system_write_Expect(&(global_test_gpio.BRR), 0xDEAD);
+    gpio_clear_port(test_gpio, 0xDEAD);
+}
+
+TEST(GPIOUsage, ClearPin) {
+    system_write_Expect(&(global_test_gpio.BRR), 0x0100);
+    gpio_clear_pin(test_gpio, 8);
 }

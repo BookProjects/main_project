@@ -88,9 +88,11 @@ typedef struct {
 GPIO gpio_create(uint32_t gpio_port);
 err_t gpio_destroy(GPIO gpio);
 
+// Configuration
 err_t gpio_configure_port(GPIO gpio, GPIOBaseConfig config);
 err_t gpio_configure_pin(GPIO gpio, GPIOPinConfig config, GPIOPin pin);
 
+// Input Functionality
 S_DATA gpio_read_port(GPIO gpio);
 // Returns the bitmasked value of gpio_read_port
 S_DATA gpio_read_pin(GPIO gpio, GPIOPin pin);
@@ -98,29 +100,22 @@ S_DATA gpio_read_pin(GPIO gpio, GPIOPin pin);
 S_DATA gpio_check_output_port(GPIO gpio);
 S_DATA gpio_check_output_pin(GPIO gpio, GPIOPin pin);
 
+
+// Output Functionality
+err_t gpio_write_port(GPIO gpio, S_DATA data);
+err_t gpio_set_port(GPIO gpio, S_DATA data);
+err_t gpio_clear_port(GPIO gpio, S_DATA data);
+
+err_t gpio_write_pin(GPIO gpio, GPIOPin pin, S_DATA data);
+err_t gpio_set_pin(GPIO gpio, GPIOPin pin);
+err_t gpio_clear_pin(GPIO gpio, GPIOPin pin);
+
 /*
  * Listing of desired functionality
- *
- * - Configure whole port or pin
- *
- * - Set output status of port or pin
- *   - Set and reset individual bits
- * - Get output status of port or pin
- *
- * - Get input status of port or pin
  *
  * ( STRETCH GOAL )
  * - Lock port
  *
  */
-
-/*
-
-int32_t gpio_configure(GPIO gpio_port, uint32_t configuration);
-int32_t gpio_configure_pin(GPIO gpio_port, uint32_t pin, uint32_t configuration);
-
-uint32_t gpio_digital_read(GPIO gpio_port);
-uint32_t gpio_digital_read_pin(GPIO gpio_port, uint32_t pin);
-*/
 
 #endif  // GPIO_H

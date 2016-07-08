@@ -131,7 +131,7 @@ void mock_system_write_impl(S_DATA* dest, S_DATA value)
   cmock_line = cmock_call_instance->LineNumber;
   {
     UNITY_SET_DETAILS(CMockString_system_write,CMockString_dest);
-    UNITY_TEST_ASSERT_EQUAL_MEMORY((void*)(cmock_call_instance->Expected_dest), (void*)(dest), sizeof(S_DATA), cmock_line, CMockStringMismatch);
+    UNITY_TEST_ASSERT_EQUAL_PTR((void*)(cmock_call_instance->Expected_dest), (void*)(dest), cmock_line, CMockStringMismatch);
   }
   {
     UNITY_SET_DETAILS(CMockString_system_write,CMockString_value);
@@ -168,7 +168,7 @@ S_DATA system_read(S_DATA* src)
   cmock_line = cmock_call_instance->LineNumber;
   {
     UNITY_SET_DETAILS(CMockString_system_read,CMockString_src);
-    UNITY_TEST_ASSERT_EQUAL_MEMORY((void*)(cmock_call_instance->Expected_src), (void*)(src), sizeof(S_DATA), cmock_line, CMockStringMismatch);
+    UNITY_TEST_ASSERT_EQUAL_PTR((void*)(cmock_call_instance->Expected_src), (void*)(src), cmock_line, CMockStringMismatch);
   }
   UNITY_CLR_DETAILS();
   return cmock_call_instance->ReturnVal;

@@ -56,8 +56,7 @@ CFLAGS := -std=c99 \
 		  -I$(UNITY_PATH)/extras/fixture/src \
 		  -I$(CMOCK_PATH)/src \
 		  -I$(SRC_PATH) \
-		  -I$(TEST_PATH) \
-		  -DUNITY_FIXTURES
+		  -I$(TEST_PATH)
 CFLAGS += -g
 LDFLAGS :=
 ARFLAGS := r

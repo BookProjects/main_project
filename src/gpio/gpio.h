@@ -92,6 +92,11 @@ err_t gpio_configure_port(GPIO gpio, GPIOBaseConfig config);
 err_t gpio_configure_pin(GPIO gpio, GPIOPinConfig config, GPIOPin pin);
 
 S_DATA gpio_read_port(GPIO gpio);
+// Returns the bitmasked value of gpio_read_port
+S_DATA gpio_read_pin(GPIO gpio, GPIOPin pin);
+// Returns last written value to output
+S_DATA gpio_check_output_port(GPIO gpio);
+S_DATA gpio_check_output_pin(GPIO gpio, GPIOPin pin);
 
 /*
  * Listing of desired functionality

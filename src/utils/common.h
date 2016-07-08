@@ -13,4 +13,6 @@ typedef enum {
 
 S_DATA expand_nibble(S_DATA nibble, NibbleSize size);
 
+#define BIT(x) (1 << x)
+
 #endif  // COMMON_UTILS

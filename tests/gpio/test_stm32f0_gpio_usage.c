@@ -6,9 +6,12 @@
 TEST_GROUP(GPIOUsage);
 
 TEST_GROUP_RUNNER(GPIOUsage) {
-    RUN_TEST_CASE(GPIOUsage, ReadPort);
     RUN_TEST_CASE(GPIOUsage, PortConfiguration);
     RUN_TEST_CASE(GPIOUsage, PinConfiguration);
+    RUN_TEST_CASE(GPIOUsage, ReadPort);
+    RUN_TEST_CASE(GPIOUsage, ReadPin);
+    RUN_TEST_CASE(GPIOUsage, CheckOutputPort);
+    RUN_TEST_CASE(GPIOUsage, CheckOutputPin);
 }
 
 // Used to check addresses
@@ -88,4 +91,29 @@ TEST(GPIOUsage, PinConfiguration) {
 TEST(GPIOUsage, ReadPort) {
     system_read_ExpectAndReturn(&(global_test_gpio.IDR), 0xBEEF);
     TEST_ASSERT_EQUAL_HEX32(0xBEEF, gpio_read_port(test_gpio));
+}
+
+TEST(GPIOUsage, ReadPin) {
+    system_read_ExpectAndReturn(&(global_test_gpio.IDR), 0x01);
+    TEST_ASSERT_EQUAL_HEX32(0x01, gpio_read_pin(test_gpio, 0));
+    system_read_ExpectAndReturn(&(global_test_gpio.IDR), 0x01);
+    TEST_ASSERT_EQUAL_HEX32(0x00, gpio_read_pin(test_gpio, 1));
+    // NOTE: It only returns the bitmasked value, not a constant [1,0]
+    system_read_ExpectAndReturn(&(global_test_gpio.IDR), 0x02);
+    TEST_ASSERT_EQUAL_HEX32(0x02, gpio_read_pin(test_gpio, 1));
+}
+
+TEST(GPIOUsage, CheckOutputPort) {
+    system_read_ExpectAndReturn(&(global_test_gpio.ODR), 0xDEAD);
+    TEST_ASSERT_EQUAL_HEX32(0xDEAD, gpio_check_output_port(test_gpio));
+}
+
+TEST(GPIOUsage, CheckOutputPin) {
+    system_read_ExpectAndReturn(&(global_test_gpio.ODR), 0x01);
+    TEST_ASSERT_EQUAL_HEX32(0x01, gpio_check_output_pin(test_gpio, 0));
+    system_read_ExpectAndReturn(&(global_test_gpio.ODR), 0x01);
+    TEST_ASSERT_EQUAL_HEX32(0x00, gpio_check_output_pin(test_gpio, 1));
+    // NOTE: It only returns the bitmasked value, not a constant [1,0]
+    system_read_ExpectAndReturn(&(global_test_gpio.ODR), 0x02);
+    TEST_ASSERT_EQUAL_HEX32(0x02, gpio_check_output_pin(test_gpio, 1));
 }

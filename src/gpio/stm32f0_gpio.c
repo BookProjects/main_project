@@ -64,3 +64,18 @@ S_DATA gpio_read_port(GPIO gpio) {
     GPIOStruct *self = (GPIOStruct *)gpio;
     return S_RD(self, IDR);
 }
+
+S_DATA gpio_read_pin(GPIO gpio, GPIOPin pin) {
+    S_DATA port_data = gpio_read_port(gpio);
+    return port_data & BIT(pin);
+}
+
+S_DATA gpio_check_output_port(GPIO gpio) {
+    GPIOStruct *self = (GPIOStruct *)gpio;
+    return S_RD(self, ODR);
+}
+
+S_DATA gpio_check_output_pin(GPIO gpio, GPIOPin pin) {
+    S_DATA port_data = gpio_check_output_port(gpio);
+    return port_data & BIT(pin);
+}

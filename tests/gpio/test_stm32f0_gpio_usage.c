@@ -31,15 +31,21 @@ static GPIOStruct global_test_gpio;
 // Used to run calls
 static GPIO test_gpio;
 
+static S_DATA default_system_read_impl(S_DATA *src) {
+    return *src;
+}
+
 TEST_SETUP(GPIOUsage) {
     Mocksystem_memory_internals_Init();
     system_init_ExpectAndReturn((void *)GPIO_A_BASE_ADDRESS, sizeof(GPIOStruct), &global_test_gpio);
     test_gpio = gpio_create(0);
     UT_PTR_SET(system_write, mock_system_write_impl);
+    UT_PTR_SET(system_read, mock_system_read_impl);
 }
 
 TEST_TEAR_DOWN(GPIOUsage) {
     gpio_destroy(test_gpio);
+    global_test_gpio = (GPIOStruct) { 0 };
     Mocksystem_memory_internals_Verify();
     Mocksystem_memory_internals_Destroy();
 }
@@ -67,6 +73,7 @@ TEST(GPIOUsage, PortConfiguration) {
 }
 
 TEST(GPIOUsage, PinConfiguration) {
+    UT_PTR_SET(system_read, default_system_read_impl);
     GPIOPinConfig configuration = {
         .base_config = {
             .mode = OUTPUT,
@@ -79,24 +86,35 @@ TEST(GPIOUsage, PinConfiguration) {
 
     // Alternate function pin 1, AF2
     system_write_Expect(&(global_test_gpio.AFRL), 0x20);
-    // Last check
-    system_write_Expect(&(global_test_gpio.OTYPER), 0xFFFFFFFF);
-    system_write_Expect(&(global_test_gpio.OSPEEDR), 0x55555555);
-    system_write_Expect(&(global_test_gpio.PUPDR), 0xAAAAAAAA);
-    system_write_Expect(&(global_test_gpio.MODER), 0x55555555);
+    system_write_Expect(&(global_test_gpio.OTYPER), 0x02);
+    system_write_Expect(&(global_test_gpio.OSPEEDR), 0x04);
+    system_write_Expect(&(global_test_gpio.PUPDR), 0x08);
+    system_write_Expect(&(global_test_gpio.MODER), 0x04);
 
     gpio_configure_pin(test_gpio, configuration, 1);
 
-    configuration.fxn = AF3;
     // Alternate function pin 10, AF3
+    configuration.fxn = AF3;
+    // Since just configuring pin, don't want to overwrite prev. configurations
     system_write_Expect(&(global_test_gpio.AFRH), 0x300);
-    // Last check
-    system_write_Expect(&(global_test_gpio.OTYPER), 0xFFFFFFFF);
-    system_write_Expect(&(global_test_gpio.OSPEEDR), 0x55555555);
-    system_write_Expect(&(global_test_gpio.PUPDR), 0xAAAAAAAA);
-    system_write_Expect(&(global_test_gpio.MODER), 0x55555555);
+    // b'100 0000 0010
+    system_write_Expect(&(global_test_gpio.OTYPER), 0x0402);
+    //   10   9  8   7  6   5  4   3  2   1  0
+    // b'01, 00 00, 00 00 ,00 00, 00 00, 01 00
+    system_write_Expect(&(global_test_gpio.OSPEEDR), 0x100004);
+    system_write_Expect(&(global_test_gpio.PUPDR),   0x200008);
+    system_write_Expect(&(global_test_gpio.MODER),   0x100004);
 
     gpio_configure_pin(test_gpio, configuration, 10);
+
+    // AF1, pin 11
+    configuration.fxn = AF1;
+    system_write_Expect(&(global_test_gpio.AFRH), 0x01300);
+    system_write_Expect(&(global_test_gpio.OTYPER), 0x0C02);
+    system_write_Expect(&(global_test_gpio.OSPEEDR), 0x500004);
+    system_write_Expect(&(global_test_gpio.PUPDR),   0xA00008);
+    system_write_Expect(&(global_test_gpio.MODER),   0x500004);
+    gpio_configure_pin(test_gpio, configuration, 11);
 }
 
 static void expect_lock_sequence(S_DATA pins, S_DATA final_value) {

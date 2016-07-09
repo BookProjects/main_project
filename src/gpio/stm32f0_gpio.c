@@ -38,16 +38,16 @@ err_t gpio_configure_pin(GPIO gpio, GPIOPinConfig config, GPIOPin pin) {
     GPIOStruct *self = (GPIOStruct *)gpio;
     S_DATA fxn = config.fxn << (pin << 2);  // Shift left pin * 4 times, will wrap
     if(pin < 8) {
-        S_WR(self, AFRL, fxn);
+        S_OE(self, AFRL, fxn);
     } else if (pin < 16) {
-        S_WR(self, AFRH, fxn);
+        S_OE(self, AFRH, fxn);
     } else {
         return NOT_OK;
     }
-    S_WR(self, OTYPER, expand_nibble(config.base_config.type, NIB_1));
-    S_WR(self, OSPEEDR, expand_nibble(config.base_config.speed, NIB_2));
-    S_WR(self, PUPDR, expand_nibble(config.base_config.pull, NIB_2));
-    S_WR(self, MODER, expand_nibble(config.base_config.mode, NIB_2));
+    S_OE(self, OTYPER, config.base_config.type << pin);
+    S_OE(self, OSPEEDR, config.base_config.speed << (pin << 1));
+    S_OE(self, PUPDR, config.base_config.pull << (pin << 1));
+    S_OE(self, MODER, config.base_config.mode << (pin << 1));
     return OK;
 }
 

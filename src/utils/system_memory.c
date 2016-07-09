@@ -7,7 +7,3 @@ void * system_init(void *base_address, uint32_t type_size) {
 void system_delete(void *base_address) {
     return;
 }
-
-S_DATA system_read(S_DATA *dest) {
-    return *dest;
-}

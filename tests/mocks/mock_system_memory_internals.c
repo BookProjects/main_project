@@ -138,6 +138,8 @@ void mock_system_write_impl(S_DATA* dest, S_DATA value)
     UNITY_TEST_ASSERT_EQUAL_MEMORY((void*)(&cmock_call_instance->Expected_value), (void*)(&value), sizeof(S_DATA), cmock_line, CMockStringMismatch);
   }
   UNITY_CLR_DETAILS();
+  // Actually write value
+  *dest = value;
 }
 
 void CMockExpectParameters_system_write(CMOCK_system_write_CALL_INSTANCE* cmock_call_instance, S_DATA* dest, S_DATA value)
@@ -158,7 +160,7 @@ void system_write_CMockExpect(UNITY_LINE_TYPE cmock_line, S_DATA* dest, S_DATA v
   UNITY_CLR_DETAILS();
 }
 
-S_DATA system_read(S_DATA* src)
+S_DATA mock_system_read_impl(S_DATA* src)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   UNITY_SET_DETAIL(CMockString_system_read);

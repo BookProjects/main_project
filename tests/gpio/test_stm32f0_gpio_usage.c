@@ -93,6 +93,16 @@ TEST(GPIOUsage, PinConfiguration) {
 
     gpio_configure_pin(test_gpio, configuration, 1);
 
+    // Alternate function pin 1, AF1
+    configuration.fxn = AF1;
+    system_write_Expect(&(global_test_gpio.AFRL), 0x10);
+    system_write_Expect(&(global_test_gpio.OTYPER), 0x02);
+    system_write_Expect(&(global_test_gpio.OSPEEDR), 0x04);
+    system_write_Expect(&(global_test_gpio.PUPDR), 0x08);
+    system_write_Expect(&(global_test_gpio.MODER), 0x04);
+
+    gpio_configure_pin(test_gpio, configuration, 1);
+
     // Alternate function pin 10, AF3
     configuration.fxn = AF3;
     // Since just configuring pin, don't want to overwrite prev. configurations
@@ -114,6 +124,17 @@ TEST(GPIOUsage, PinConfiguration) {
     system_write_Expect(&(global_test_gpio.OSPEEDR), 0x500004);
     system_write_Expect(&(global_test_gpio.PUPDR),   0xA00008);
     system_write_Expect(&(global_test_gpio.MODER),   0x500004);
+    gpio_configure_pin(test_gpio, configuration, 11);
+
+    // pin 11
+    configuration.base_config.mode = ALT;
+    configuration.base_config.speed = LOW_SPEED;
+    configuration.base_config.pull = PULL_UP;
+    system_write_Expect(&(global_test_gpio.AFRH), 0x01300);
+    system_write_Expect(&(global_test_gpio.OTYPER), 0x0C02);
+    system_write_Expect(&(global_test_gpio.OSPEEDR), 0x100004);
+    system_write_Expect(&(global_test_gpio.PUPDR),   0x600008);
+    system_write_Expect(&(global_test_gpio.MODER),   0x900004);
     gpio_configure_pin(test_gpio, configuration, 11);
 }
 

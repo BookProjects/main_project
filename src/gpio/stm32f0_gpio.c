@@ -37,17 +37,20 @@ err_t gpio_configure_port(GPIO gpio, GPIOBaseConfig config) {
 err_t gpio_configure_pin(GPIO gpio, GPIOPinConfig config, GPIOPin pin) {
     GPIOStruct *self = (GPIOStruct *)gpio;
     S_DATA fxn = config.fxn << (pin << 2);  // Shift left pin * 4 times, will wrap
+    S_DATA mask = 0xF << (pin << 2);
     if(pin < 8) {
-        S_OE(self, AFRL, fxn);
+        S_OW(self, AFRL, fxn, mask);
     } else if (pin < 16) {
-        S_OE(self, AFRH, fxn);
+        S_OW(self, AFRH, fxn, mask);
     } else {
         return NOT_OK;
     }
-    S_OE(self, OTYPER, config.base_config.type << pin);
-    S_OE(self, OSPEEDR, config.base_config.speed << (pin << 1));
-    S_OE(self, PUPDR, config.base_config.pull << (pin << 1));
-    S_OE(self, MODER, config.base_config.mode << (pin << 1));
+    S_DATA mask1 = BIT(pin);
+    S_DATA mask2 = 0x33 << (pin << 1);
+    S_OW(self, OTYPER, config.base_config.type << pin, mask1);
+    S_OW(self, OSPEEDR, config.base_config.speed << (pin << 1), mask2);
+    S_OW(self, PUPDR, config.base_config.pull << (pin << 1), mask2);
+    S_OW(self, MODER, config.base_config.mode << (pin << 1), mask2);
     return OK;
 }
 

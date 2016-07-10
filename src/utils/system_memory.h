@@ -11,18 +11,21 @@ void system_delete(void *base_address);
 
 #define SYSTEM_WRITE(object, field, value) (system_write(&(object->field), value))
 
+#define SYSTEM_READ(object, field) (system_read(&(object->field)))
+
 #define SYSTEM_AND_EQUAL(object, field, value) (SYSTEM_WRITE(object, field, SYSTEM_READ(object, field) & value))
 #define SYSTEM_OR_EQUAL(object, field, value) (SYSTEM_WRITE(object, field, SYSTEM_READ(object, field) | value))
-
-#define SYSTEM_READ(object, field) (system_read(&(object->field)))
+// x &= ~mask, x |= val. Useful when setting one section of a bitfield
+#define SYSTEM_OVERWRITE(object, field, value, mask) (SYSTEM_WRITE(object, field, (SYSTEM_READ(object, field) & ~mask) | value))
 
 
 // Shortcuts
 #define S_INIT SYSTEM_INIT
 #define S_DEL SYSTEM_DELETE
 #define S_WR SYSTEM_WRITE
+#define S_RD SYSTEM_READ
 #define S_AE SYSTEM_AND_EQUAL
 #define S_OE SYSTEM_OR_EQUAL
-#define S_RD SYSTEM_READ
+#define S_OW SYSTEM_OVERWRITE
 
 #endif // SYSTEM_MEMORY

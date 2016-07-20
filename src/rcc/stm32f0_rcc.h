@@ -1,6 +1,13 @@
 #ifndef STM32F0_RCC_H
 #define STM32F0_RCC_H
 
+#include "utils/common.h"
+#include "stm32f0/peripheral.h"
+
+S_DATA get_peripheral_clock_bit(Peripheral p);
+
+#define RCC_ADDRESS 0x40021000
+
 typedef struct {
     S_DATA CR,        // 0x00 (Control)
            CFGR,      // 0x04 (Configuration)
@@ -15,7 +22,7 @@ typedef struct {
            AHBRSTR,   // 0x28 (AHB Peripheral Reset)
            CFGR2,     // 0x2C (Clock Configuration 2)
            CFGR3,     // 0x30 (Clock Configuration 3)
-           CR2        // 0x34 (Control 2)
+           CR2;       // 0x34 (Control 2)
 } RCCStruct;
 
 /* CR (Control Register) */
@@ -36,6 +43,7 @@ typedef struct {
 // Combine with HSICAL (adjust to temp and V voltage), default = 16 -> 8MHZ +- 1%
 // Trim step is about 40KHz
 #define HSI_TRIM  0xF8
+#define HSI_TRIM_OFFSET 3
 // HSI Clock ready flag, like HSERDY
 #define HSI_RDY   BIT(1)
 // HSI Clock enable, HW sets to 1 when leaving STOP or STANDBY
@@ -46,12 +54,14 @@ typedef struct {
 #define MCO (BIT(26) | BIT(25) | BIT(24))
 #define PLLMUL 0x003C0000
 #define PLLXTPRE BIT(17)
-#define PLLSRC BIT(16)
+#define PLLSRC_OFFSET 16
+#define PLLSRC BIT(PLLSRC_OFFSET)
 #define ADCPRE BIT(14)
 #define PPRE (BIT(10) | BIT(9) | BIT(8))
 #define HPRE 0XF0
 #define SWS 0x0C
 #define SW 0x03
+#define SWS_OFFSET 2
 
 typedef enum {
     MCO_DISABLED      = 0,
@@ -286,16 +296,16 @@ typedef enum {
  *
  */
 // HSI14 Clock Calibration, initialized automatically
-#define HSI14CAL   0xFF00
+#define HSI14_CAL   0xFF00
 // Combine with HSI14CAL (adjust to temp and V voltage), default = 16 -> 8MHZ +- 1%
 // Trim step is about 50KHz (different from 40khz of HSI
-#define HSI14TRIM  0xF8
+#define HSI14_TRIM  0xF8
 // HSI14 Clock request from ADC Disable (when set, prevents ADC from enabling HSI14)
-#define HSI14DIS   BIT(2)
+#define HSI14_DIS   BIT(2)
 // HSI14 Clock ready flag, like HSERDY
-#define HSI14RDY   BIT(1)
+#define HSI14_RDY   BIT(1)
 // HSI14 Clock enable, HW sets to 1 when leaving STOP or STANDBY
-#define HSI14ON    BIT(0)
+#define HSI14_ON    BIT(0)
 
 
 #endif

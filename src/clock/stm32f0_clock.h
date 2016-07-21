@@ -12,7 +12,11 @@ typedef enum {
     HSE_CLK = 1,
     PLL_CLK = 2
 } CLK_SRC;
+
 err_t clock_set_src(CLK_SRC src);
+err_t clock_power_peripheral(Peripheral p, BOOL on);
+
+void clock_clear_interrupts();
 
 /*
  * There are multiple clocks that can be enabled. The possible system clocks:
@@ -26,12 +30,6 @@ err_t clock_set_src(CLK_SRC src);
  * - HSI14
  *
  */
-err_t clock_enable_peripheral(Peripheral p);
-err_t clock_disable_peripheral(Peripheral p);
-
-void clock_clear_interrupts();
-
-
 // Clock Configuration, also enables turning on / off
 err_t clock_configure_HSI(BOOL on, S_DATA trim);
 err_t clock_configure_HSE(BOOL on, S_DATA bypass_oscillator, S_DATA fallback_to_hsi);

@@ -37,6 +37,6 @@ static const S_DATA peripheral_pins[] = {
     [SYSCFG_CMP] = SYSCFG_CMP_EN
 };
 
-S_DATA get_peripheral_clock_bit(Peripheral p) {
+S_DATA get_peripheral_rcc_bit(Peripheral p) {
     return peripheral_pins[p];
 }

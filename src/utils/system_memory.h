@@ -17,6 +17,8 @@ void system_delete(void *base_address);
 #define SYSTEM_OR_EQUAL(object, field, value) (SYSTEM_WRITE(object, field, SYSTEM_READ(object, field) | value))
 // x &= ~mask, x |= val. Useful when setting one section of a bitfield
 #define SYSTEM_OVERWRITE(object, field, value, mask) (SYSTEM_WRITE(object, field, (SYSTEM_READ(object, field) & ~mask) | value))
+// Set a mask ON or OFF
+#define SYSTEM_SET_MASK(object, field, mask, on) (on ? SYSTEM_OR_EQUAL(object, field, mask) : SYSTEM_AND_EQUAL(object, field, ~mask))
 
 
 // Shortcuts
@@ -27,5 +29,6 @@ void system_delete(void *base_address);
 #define S_AE SYSTEM_AND_EQUAL
 #define S_OE SYSTEM_OR_EQUAL
 #define S_OW SYSTEM_OVERWRITE
+#define S_SM SYSTEM_SET_MASK
 
 #endif // SYSTEM_MEMORY

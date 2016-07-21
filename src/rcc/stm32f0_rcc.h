@@ -4,7 +4,7 @@
 #include "utils/common.h"
 #include "stm32f0/peripheral.h"
 
-S_DATA get_peripheral_clock_bit(Peripheral p);
+S_DATA get_peripheral_rcc_bit(Peripheral p);
 
 #define RCC_ADDRESS 0x40021000
 
@@ -59,9 +59,9 @@ typedef struct {
 #define ADCPRE BIT(14)
 #define PPRE (BIT(10) | BIT(9) | BIT(8))
 #define HPRE 0XF0
+#define SWS_OFFSET 2
 #define SWS 0x0C
 #define SW 0x03
-#define SWS_OFFSET 2
 
 typedef enum {
     MCO_DISABLED      = 0,

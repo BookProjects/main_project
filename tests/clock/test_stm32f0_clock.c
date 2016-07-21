@@ -18,10 +18,13 @@ TEST_SETUP(Clock) {
 }
 
 TEST_TEAR_DOWN(Clock) {
+    test_rcc = (RCCStruct) { 0 };
     Mocksystem_memory_internals_Verify();
     Mocksystem_memory_internals_Destroy();
 }
 
 TEST(Clock, ConfigureHSI) {
-    clock_configure_HSI(1, 0xEF);
+    TEST_ASSERT_EQUAL_UINT32(NOT_OK, clock_configure_HSI(ON, 0xEF));
+    test_rcc.CR |= HSI_RDY;
+    TEST_ASSERT_EQUAL_UINT32(OK, clock_configure_HSI(ON, 0xEF));
 }

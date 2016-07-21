@@ -65,7 +65,10 @@ CFLAGS := -std=c99 \
 		  -I$(SRC_PATH) \
 		  -I$(TEST_PATH)
 CFLAGS += -g
-LDFLAGS :=
+TEST_CFLAGS = $(CFLAGS) \
+			  -fprofile-arcs \
+			  -ftest-coverage
+LDFLAGS := -fprofile-generate
 ARFLAGS := r
 
 # Commands
@@ -90,17 +93,17 @@ clean:
 $(OBJ_PATH)/%.o: */%.c
 	$(E)C Compiling $< to $@
 	$(Q)mkdir -p `dirname $@`
-	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+	$(Q)$(COMPILE) -o $@ $< $(TEST_CFLAGS)
 
 $(OBJ_PATH)/%.o: $(UNITY_PATH)/%.c
 	$(E)C Compiling $< to $@
 	$(Q)mkdir -p `dirname $@`
-	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+	$(Q)$(COMPILE) -o $@ $< $(TEST_CFLAGS)
 
 $(OBJ_PATH)/%.o: $(CMOCK_PATH)/%.c
 	$(E)C Compiling $< to $@
 	$(Q)mkdir -p `dirname $@`
-	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+	$(Q)$(COMPILE) -o $@ $< $(TEST_CFLAGS)
 
 $(PROJECT_LIB): $(OBJ)
 	$(Q)$(AR) $(ARFLAGS) $@ $^

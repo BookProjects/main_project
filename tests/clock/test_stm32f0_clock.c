@@ -7,6 +7,7 @@ TEST_GROUP(Clock);
 
 TEST_GROUP_RUNNER(Clock) {
     RUN_TEST_CASE(Clock, ConfigureHSI);
+    RUN_TEST_CASE(Clock, PowerPeripheral);
 }
 
 static RCCStruct test_rcc;
@@ -27,4 +28,17 @@ TEST(Clock, ConfigureHSI) {
     TEST_ASSERT_EQUAL_UINT32(NOT_OK, clock_configure_HSI(ON, 0xEF));
     test_rcc.CR |= HSI_RDY;
     TEST_ASSERT_EQUAL_UINT32(OK, clock_configure_HSI(ON, 0xEF));
+}
+
+TEST(Clock, PowerPeripheral) {
+    UT_PTR_SET(system_write, mock_system_write_impl);
+
+    system_write_Expect(&(test_rcc.AHBENR), IOA_EN);
+    clock_power_peripheral(ON, IO_A);
+
+    system_write_Expect(&(test_rcc.AHBENR), IOA_EN | IOB_EN);
+    clock_power_peripheral(ON, IO_B);
+
+    system_write_Expect(&(test_rcc.AHBENR), IOB_EN);
+    clock_power_peripheral(OFF, IO_A);
 }

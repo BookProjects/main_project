@@ -46,7 +46,7 @@ void clock_reset() {
 
 err_t clock_set_src(CLK_SRC src) {
     if(is_src_ready(src)) {
-        S_OW(rcc, CR, src, SW);
+        S_OW(rcc, CFGR, src, SW);
         for(int i = 0; i < CLOCK_READY_TIMEOUT; ++i) {
             if(clock_get_src() == src) {
                 return OK;
@@ -87,7 +87,7 @@ err_t clock_configure_PLL(BOOL on, S_DATA multiplier, S_DATA hse_divider, S_DATA
 
 
 // Peripheral Clocks
-err_t clock_power_peripheral(Peripheral peripheral, BOOL on) {
+err_t clock_power_peripheral(BOOL on, Peripheral peripheral) {
     switch(get_peripheral_bus(peripheral)) {
         case AHB:
             S_SM(rcc, AHBENR, get_peripheral_rcc_bit(peripheral), on);
@@ -97,21 +97,6 @@ err_t clock_power_peripheral(Peripheral peripheral, BOOL on) {
             break;
         case APB2:
             S_SM(rcc, APB2ENR, get_peripheral_rcc_bit(peripheral), on);
-            break;
-    }
-    return OK;
-}
-
-err_t clock_disable_peripheral(Peripheral peripheral) {
-    switch(get_peripheral_bus(peripheral)) {
-        case AHB:
-            S_AE(rcc, AHBENR, ~get_peripheral_rcc_bit(peripheral));
-            break;
-        case APB1:
-            S_AE(rcc, APB1ENR, ~get_peripheral_rcc_bit(peripheral));
-            break;
-        case APB2:
-            S_AE(rcc, APB2ENR, ~get_peripheral_rcc_bit(peripheral));
             break;
     }
     return OK;

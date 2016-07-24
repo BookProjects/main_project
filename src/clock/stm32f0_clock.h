@@ -14,7 +14,7 @@ typedef enum {
 } CLK_SRC;
 
 err_t clock_set_src(CLK_SRC src);
-err_t clock_power_peripheral(Peripheral p, BOOL on);
+err_t clock_power_peripheral(BOOL on, Peripheral p);
 
 void clock_clear_interrupts();
 

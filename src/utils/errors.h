@@ -1,5 +1,5 @@
-#ifndef ERRORS_H
-#define ERRROS_H
+#ifndef ERROR_UTILS_H
+#define ERROR_UTILS_H
 
 typedef enum {
     OK     = 0,

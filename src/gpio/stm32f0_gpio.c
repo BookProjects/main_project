@@ -1,4 +1,8 @@
+#include "stm32f0/peripheral.h"
+
 #include "gpio/stm32f0_gpio.h"
+#include "clock/stm32f0_clock.h"
+
 
 static const uintptr_t GPIOPorts[] = {
     GPIO_A_BASE_ADDRESS,
@@ -11,9 +15,18 @@ static const uintptr_t GPIOPorts[] = {
 
 static const uint32_t NUM_PORTS = 6;
 static const uint32_t PORT_E = 4;  // Unused GPIO port in STM32F0
+static const Peripheral port_peripheral_map[] = {
+    [0] = IO_A,
+    [1] = IO_B,
+    [2] = IO_C,
+    [3] = IO_D,
+    [5] = IO_F
+};
+
 
 GPIO gpio_create(uint32_t gpio_port) {
     if(gpio_port < NUM_PORTS && gpio_port != PORT_E) {
+        clock_power_peripheral(ON, port_peripheral_map[gpio_port]);
         return (GPIO) S_INIT(GPIOStruct, GPIOPorts[gpio_port]);
     } else {
         return NULL;

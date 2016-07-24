@@ -1,5 +1,6 @@
 #include "unity_fixture.h"
 
+#include "clock/stm32f0_clock.h"
 #include "gpio/stm32f0_gpio.h"
 #include "mocks/mock_system_memory_internals.h"
 
@@ -12,11 +13,16 @@ TEST_GROUP_RUNNER(GPIO) {
     RUN_TEST_CASE(GPIO, ProperInitialization);
 }
 
+static RCCStruct test_rcc;
+
 TEST_SETUP(GPIO) {
     Mocksystem_memory_internals_Init();
+    system_init_ExpectAndReturn((void *)RCC_ADDRESS, sizeof(RCCStruct), &test_rcc);
+    clock_create();
 }
 
 TEST_TEAR_DOWN(GPIO) {
+    test_rcc = (RCCStruct) { 0 };
     Mocksystem_memory_internals_Verify();
     Mocksystem_memory_internals_Destroy();
 }
@@ -66,6 +72,7 @@ TEST(GPIO, ProperInitialization) {
     // Ensure nothing is written to
     system_init_expect(GPIO_A_BASE_ADDRESS);
     UT_PTR_SET(system_write, mock_system_write_impl);
+    system_write_Expect(&(test_rcc.AHBENR), IOA_EN);
     GPIO test_gpio = gpio_create(0);
     gpio_destroy(test_gpio);
 }

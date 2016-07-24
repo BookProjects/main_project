@@ -1,6 +1,8 @@
 #include "unity_fixture.h"
 
+#include "clock/stm32f0_clock.h"
 #include "gpio/stm32f0_gpio.h"
+#include "utils/errors.h"
 #include "mocks/mock_system_memory_internals.h"
 
 TEST_GROUP(GPIOUsage);
@@ -30,6 +32,7 @@ TEST_GROUP_RUNNER(GPIOUsage) {
 static GPIOStruct global_test_gpio;
 // Used to run calls
 static GPIO test_gpio;
+static RCCStruct test_rcc;
 
 static S_DATA default_system_read_impl(S_DATA *src) {
     return *src;
@@ -37,6 +40,8 @@ static S_DATA default_system_read_impl(S_DATA *src) {
 
 TEST_SETUP(GPIOUsage) {
     Mocksystem_memory_internals_Init();
+    system_init_ExpectAndReturn((void *)RCC_ADDRESS, sizeof(RCCStruct), &test_rcc);
+    clock_create();
     system_init_ExpectAndReturn((void *)GPIO_A_BASE_ADDRESS, sizeof(GPIOStruct), &global_test_gpio);
     test_gpio = gpio_create(0);
     UT_PTR_SET(system_write, mock_system_write_impl);

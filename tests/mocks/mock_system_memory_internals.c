@@ -135,6 +135,7 @@ void mock_system_write_impl(S_DATA* dest, S_DATA value)
   }
   {
     UNITY_SET_DETAILS(CMockString_system_write,CMockString_value);
+    UNITY_TEST_ASSERT_EQUAL_HEX32(cmock_call_instance->Expected_value, value, cmock_line, CMockStringMismatch);
     UNITY_TEST_ASSERT_EQUAL_MEMORY((void*)(&cmock_call_instance->Expected_value), (void*)(&value), sizeof(S_DATA), cmock_line, CMockStringMismatch);
   }
   UNITY_CLR_DETAILS();

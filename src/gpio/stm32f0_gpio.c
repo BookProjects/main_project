@@ -1,4 +1,4 @@
-#include "stm32f0/peripheral.h"
+#include "processor/stm32f0/peripheral.h"
 
 #include "gpio/stm32f0_gpio.h"
 #include "clock/stm32f0_clock.h"

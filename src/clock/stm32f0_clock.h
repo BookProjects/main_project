@@ -3,7 +3,7 @@
 
 #include "clock/clock.h"
 #include "rcc/stm32f0_rcc.h"
-#include "stm32f0/peripheral.h"
+#include "processor/stm32f0/peripheral.h"
 
 #define CLOCK_READY_TIMEOUT 20
 

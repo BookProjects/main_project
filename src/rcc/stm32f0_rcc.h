@@ -2,7 +2,7 @@
 #define STM32F0_RCC_H
 
 #include "utils/common.h"
-#include "stm32f0/peripheral.h"
+#include "processor/stm32f0/peripheral.h"
 
 S_DATA get_peripheral_rcc_bit(Peripheral p);
 

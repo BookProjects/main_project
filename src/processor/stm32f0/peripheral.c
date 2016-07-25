@@ -1,4 +1,4 @@
-#include "stm32f0/peripheral.h"
+#include "processor/stm32f0/peripheral.h"
 
 
 PeripheralBus get_peripheral_bus(Peripheral p) {

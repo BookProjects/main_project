@@ -21,7 +21,7 @@ BUILD_PATH := bin
 OBJ_PATH := $(BUILD_PATH)/obj
 CROSS_OBJ_PATH := $(BUILD_PATH)/cross_obj
 
-STARTUP := startup/startup_stm32f0xx.s
+STARTUP := stm32f0/startup_stm32f0xx.s
 LINKER_SCRIPT := linker/stm32f0_linker.ld
 
 # Define files that will get compiled
@@ -31,8 +31,8 @@ _SRC := gpio/stm32f0_gpio.c \
 		utils/system_memory.c \
 		utils/system_memory_internals.c  \
 		utils/common.c \
-		stm32f0/peripheral.c
-_CROSS_SRC := stm32f0/main.c processor/stm32f0/initialization.c stm32f0xx_it.c
+		processor/stm32f0/peripheral.c
+_CROSS_SRC := stm32f0/main.c processor/stm32f0/initialization.c stm32f0/stm32f0xx_it.c
 SRC := $(patsubst %,$(SRC_PATH)/%,$(_SRC))
 
 _TEST_SRC := gpio/test_stm32f0_gpio_creation.c \

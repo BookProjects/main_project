@@ -33,6 +33,9 @@
   ******************************************************************************
   * Modification by Hussam Al-Hertani:
   * _estack symbol modified to _stack_start symbol to match my linker file
+  ******************************************************************************
+  * Modification by Michael Christen:
+  * branch to processor_initialization instead of his initialization
   ******************************************************************************/
  
   .syntax unified

@@ -14,11 +14,12 @@ CMOCK_PATH := $(CMOCK_SOURCE)
 
 # Define library paths
 SRC_PATH := src
-TEST_PATH := tests
+TEST_PATH := tests/native
 
 # Define result paths
 BUILD_PATH := bin
 OBJ_PATH := $(BUILD_PATH)/obj
+TEST_OBJ_PATH := $(BUILD_PATH)/obj/native
 CROSS_OBJ_PATH := $(BUILD_PATH)/cross_obj
 
 STARTUP := stm32f0/startup_stm32f0xx.s
@@ -41,7 +42,8 @@ _TEST_SRC := gpio/test_stm32f0_gpio_creation.c \
 			 utils/test_system_memory.c \
 			 mocks/mock_system_memory.c \
 			 mocks/mock_system_memory_internals.c
-_TEST_SRC += test_runner.c
+_TEST_SRC += test_runner.c \
+			 config/unity_config.c
 TEST_SRC := $(patsubst %,$(TEST_PATH)/%,$(_TEST_SRC))
 
 _OBJ := $(_SRC:.c=.o)
@@ -53,7 +55,7 @@ _CROSS_OBJ += $(STARTUP:.s=.o)
 CROSS_OBJ += $(patsubst %,$(CROSS_OBJ_PATH)/%,$(_CROSS_OBJ))
 
 _TEST_OBJ := $(_TEST_SRC:.c=.o)
-TEST_OBJ := $(patsubst %,$(OBJ_PATH)/%,$(_TEST_OBJ))
+TEST_OBJ := $(patsubst %,$(TEST_OBJ_PATH)/%,$(_TEST_OBJ))
 
 _UNITY_SRC := src/unity.c extras/fixture/src/unity_fixture.c
 UNITY_SRC := $(patsubst %,$(UNITY_PATH)/%,$(_UNITY_SRC))
@@ -100,9 +102,10 @@ CFLAGS := $(BASE_CFLAGS) \
 		  -I$(UNITY_PATH)/src \
 		  -I$(UNITY_PATH)/extras/fixture/src \
 		  -I$(CMOCK_PATH)/src \
-		  -I$(TEST_PATH)
-CFLAGS += -g
-LDFLAGS :=
+		  -I$(TEST_PATH) \
+		  -I$(TEST_PATH)/config
+CFLAGS += -g -DUNITY_INCLUDE_CONFIG_H=tests/config/unity_config.h
+LDFLAGS := -DUNITY_INCLUDE_CONFIG_H=tests/config/unity_config.h
 ARFLAGS := r
 
 DEFS:= -DRUN_FROM_FLASH=1

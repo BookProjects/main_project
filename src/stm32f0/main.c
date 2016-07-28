@@ -2,10 +2,18 @@
 #include "gpio/stm32f0_gpio.h"
 #include "utils/system_memory_internals.h"
 #include "processor/stm32f0/peripheral.h"
+// #include "unity_fixture.h"
+#include "unity.h"
 
 void delay(int x);
 
-int main() {
+void setUp() {
+}
+
+void tearDown() {
+}
+
+void test_basic() {
     bool good = true;
     // Ensure we're executing instructions
     int a = 4;
@@ -47,7 +55,19 @@ int main() {
     }
 
     gpio_destroy(gpio_c);
-    return 0;
+}
+
+
+/*
+static void RunAllTests(void) {
+    RUN_TEST_GROUP(GPIO);
+}
+*/
+
+int main() {
+    UNITY_BEGIN();
+    RUN_TEST(test_basic);
+    return UNITY_END();
 }
 
 void delay(int x) {

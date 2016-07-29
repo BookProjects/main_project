@@ -5,12 +5,10 @@
 
 void delay(int x);
 
-int main() {
+bool test_read_write();
+
+bool test_read_write() {
     bool good = true;
-    // Ensure we're executing instructions
-    int a = 4;
-    int b = a * 2;
-    // Test out memory mapped reading
     // Flash size should == 0x0040 (64kB)
     uint16_t flash_size = system_read(0x1FFFF7CC) & 0xFFFF;
     if(flash_size != 0x0040) {
@@ -21,13 +19,19 @@ int main() {
     if(gpio_a_moder != 0x28000000) {
         good = false;
     }
+    /*
     // Test Writing
     system_write(GPIO_A_BASE_ADDRESS, gpio_a_moder | 0xFFFF);
     gpio_a_moder = system_read(GPIO_A_BASE_ADDRESS);
     if(gpio_a_moder != 0x2800FFFF) {
         good = false;
     }
+    */
+    return good;
+}
 
+
+int main() {
     GPIO gpio_c = gpio_create(2);
     // @mjschulte pointed out FLASH -> RAM issue when not const
     const GPIOBaseConfig port_c_config = {
@@ -37,15 +41,13 @@ int main() {
         .pull = NO_PULL
     };
     gpio_configure_port(gpio_c, port_c_config);
-
-    gpio_write_pin(gpio_c, 8, ON);
-    for(;;) {
-        delay(500);
-        gpio_write_pin(gpio_c, 9, OFF);
-        delay(500);
-        gpio_write_pin(gpio_c, 9, ON);
+    gpio_write_pin(gpio_c, 9, ON);
+    gpio_write_pin(gpio_c, 8, OFF);
+    delay(200);
+    if(test_read_write() != true) {
+        gpio_write_pin(gpio_c, 8, ON);
     }
-
+    gpio_write_pin(gpio_c, 9, OFF);
     gpio_destroy(gpio_c);
     return 0;
 }

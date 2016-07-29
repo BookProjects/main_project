@@ -29,6 +29,7 @@ LINKER_SCRIPT := linker/stm32f0_linker.ld
 _SRC := gpio/stm32f0_gpio.c \
 		clock/stm32f0_clock.c \
 		rcc/stm32f0_rcc.c \
+		flash/stm32f0_flash.c \
 		utils/system_memory.c \
 		utils/system_memory_internals.c  \
 		utils/common.c \
@@ -182,9 +183,11 @@ $(TEST_TARGET): $(TEST_OBJ) $(UNITY_OBJ) $(CMOCK_OBJ) $(PROJECT_LIB)
 	$(Q)$(LINK) $(LDFLAGS) -o $@ $^
 
 $(CROSS_TARGET): $(CROSS_ELF)
+	$(E)"Building" $@
 	$(Q)$(BIN) $< $@
 
 $(CROSS_HEX): $(CROSS_ELF)
+	$(E)"Building" $@
 	$(Q)$(HEX) $< $@
 
 $(CROSS_ELF): $(CROSS_OBJ)

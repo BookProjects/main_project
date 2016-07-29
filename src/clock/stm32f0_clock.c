@@ -1,5 +1,6 @@
 #include "utils/system_memory.h"
 #include "clock/stm32f0_clock.h"
+#include "flash/stm32f0_flash.h"
 #include <stddef.h>
 
 // Private helper functions
@@ -14,9 +15,11 @@ static BOOL is_pll_ready();
 
 static BOOL is_hsi_src();
 static BOOL is_hse_src();
+static BOOL is_pll_src();
 
 static void set_hsi(BOOL on);
 static void set_hse(BOOL on);
+static void set_pll(BOOL on);
 
 static err_t power_clock(
         BOOL on,
@@ -30,11 +33,12 @@ static RCCStruct *rcc = NULL;
 
 void clock_create() {
     rcc = S_INIT(RCCStruct, RCC_ADDRESS);
+    flash_create();
 }
 
 void clock_reset() {
     // Fallback to default HSI Clock
-    clock_configure_HSI(ON, 0);
+    clock_configure_HSI(ON, HSI_TRIM_DEFAULT_VALUE);
     clock_set_src(HSI_CLK);
     // Disable other clocks
     clock_configure_PLL(0, 0, 0, 0);
@@ -42,6 +46,16 @@ void clock_reset() {
     // Disable peripherals
     // clock_disable_peripherals(ALL_PERIPHERALS);
     clock_clear_interrupts();
+    // Set flash
+    flash_configure(true, true);
+    // Set bus prescalars
+    clock_configure_APB(PCLK_SCL_1);
+    clock_configure_AHB(HCLK_SCL_1);
+    // Configure PLL
+    // (HSI / 2) * 12 ~ 48 MHZ, HSE divider doesn't matter
+    // Don't use HSE
+    clock_configure_PLL(ON, PLL_12, false, false);
+    clock_set_src(PLL_CLK);
 }
 
 err_t clock_set_src(CLK_SRC src) {
@@ -81,8 +95,22 @@ err_t clock_configure_HSE(BOOL on, S_DATA bypass_oscillator, S_DATA fallback_to_
     return power_clock(on, is_hse_ready, is_hse_src, set_hse);
 }
 
-err_t clock_configure_PLL(BOOL on, S_DATA multiplier, S_DATA hse_divider, S_DATA src) {
-    return NOT_OK;
+err_t clock_configure_PLL(BOOL on, PLL_MULT_FACT multiplier, BOOL use_hse, BOOL divide_hse) {
+    // TODO: Check if turned on
+    S_SM(rcc, CFGR, PLLSRC, use_hse);
+    S_SM(rcc, CFGR, PLLXTPRE, divide_hse);
+    S_OW(rcc, CFGR, multiplier, PLLMUL);
+    return power_clock(on, is_pll_ready, is_pll_src, set_pll);
+}
+
+err_t clock_configure_APB(PCLK_PRESCALER prescaler) {
+    S_OW(rcc, CFGR, prescaler, PPRE);
+    return OK;
+}
+
+err_t clock_configure_AHB(HCLK_PRESCALER prescaler) {
+    S_OW(rcc, CFGR, prescaler, HPRE);
+    return OK;
 }
 
 
@@ -157,6 +185,11 @@ static BOOL is_hse_src() {
             (clock_get_pll_src() == HSE_CLK));
 }
 
+static BOOL is_pll_src() {
+    CLK_SRC clk_src = clock_get_src();
+    return clk_src == PLL_CLK;
+}
+
 
 static void set_hsi(BOOL on) {
     S_SM(rcc, CR, HSI_ON, on);
@@ -164,6 +197,10 @@ static void set_hsi(BOOL on) {
 
 static void set_hse(BOOL on) {
     S_SM(rcc, CR, HSE_ON, on);
+}
+
+static void set_pll(BOOL on) {
+    S_SM(rcc, CR, PLL_ON, on);
 }
 
 

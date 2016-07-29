@@ -42,6 +42,7 @@ typedef struct {
 #define HSI_CAL   0xFF00
 // Combine with HSICAL (adjust to temp and V voltage), default = 16 -> 8MHZ +- 1%
 // Trim step is about 40KHz
+#define HSI_TRIM_DEFAULT_VALUE 0x10
 #define HSI_TRIM  0xF8
 #define HSI_TRIM_OFFSET 3
 // HSI Clock ready flag, like HSERDY

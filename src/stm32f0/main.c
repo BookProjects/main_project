@@ -46,7 +46,7 @@ int main() {
     gpio_write_pin(gpio_c, 9, ON);
     gpio_write_pin(gpio_c, 8, ON);
     delay(200);
-    flash();
+    flash(gpio_c);
     if(test_read_write() != true) {
         gpio_write_pin(gpio_c, 8, ON);
     }
@@ -67,8 +67,8 @@ void delay(int x) {
 void flash(GPIO gpio) {
     for(;;) {
         delay(500);
-        gpio_write_pin(gpio_c, 9, OFF);
+        gpio_write_pin(gpio, 9, OFF);
         delay(500);
-        gpio_write_pin(gpio_c, 9, ON);
+        gpio_write_pin(gpio, 9, ON);
     }
 }

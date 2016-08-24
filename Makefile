@@ -98,7 +98,8 @@ MCU:=cortex-m0
 BASE_CFLAGS := -std=c99 \
 			   -Wall \
 		  	   -I. \
-		  	   -I$(SRC_PATH)
+		  	   -I$(SRC_PATH) \
+			   -I$(SRC_PATH)/CMSIS
 CFLAGS := $(BASE_CFLAGS) \
 		  -I$(UNITY_PATH)/src \
 		  -I$(UNITY_PATH)/extras/fixture/src \

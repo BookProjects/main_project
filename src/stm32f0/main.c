@@ -2,6 +2,7 @@
 #include "gpio/stm32f0_gpio.h"
 #include "utils/system_memory_internals.h"
 #include "processor/stm32f0/peripheral.h"
+#include "stm32f0/stm32f0xx.h"
 
 void delay(int x);
 

@@ -5,6 +5,7 @@
 #include "stm32f0/stm32f0xx.h"
 
 void delay(int x);
+void flash(GPIO gpio);
 
 bool test_read_write();
 
@@ -43,8 +44,9 @@ int main() {
     };
     gpio_configure_port(gpio_c, port_c_config);
     gpio_write_pin(gpio_c, 9, ON);
-    gpio_write_pin(gpio_c, 8, OFF);
+    gpio_write_pin(gpio_c, 8, ON);
     delay(200);
+    flash();
     if(test_read_write() != true) {
         gpio_write_pin(gpio_c, 8, ON);
     }
@@ -59,5 +61,14 @@ void delay(int x) {
         for(volatile int j = 0; j < 1000; ++j) {
             k++;
         }
+    }
+}
+
+void flash(GPIO gpio) {
+    for(;;) {
+        delay(500);
+        gpio_write_pin(gpio_c, 9, OFF);
+        delay(500);
+        gpio_write_pin(gpio_c, 9, ON);
     }
 }

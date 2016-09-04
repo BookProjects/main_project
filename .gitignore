@@ -34,3 +34,6 @@
 
 # Custom ignores
 bin/
+*.bin
+*.map
+*.lst

@@ -3,6 +3,7 @@
 #include "utils/system_memory_internals.h"
 #include "processor/stm32f0/peripheral.h"
 #include "stm32f0/stm32f0xx.h"
+#include <setjmp.h>
 
 void delay(int x);
 void flash(GPIO gpio);
@@ -65,10 +66,13 @@ void delay(int x) {
 }
 
 void flash(GPIO gpio) {
-    for(;;) {
-        delay(500);
+    jmp_buf env;
+    int val = setjmp(env);
+    {
+		delay(500);
         gpio_write_pin(gpio, 9, OFF);
-        delay(500);
+		delay(500);
         gpio_write_pin(gpio, 9, ON);
-    }
+	}
+    longjmp(env, 1);
 }

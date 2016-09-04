@@ -36,7 +36,7 @@ bool test_read_write() {
 int main() {
     GPIO gpio_c = gpio_create(2);
     // @mjschulte pointed out FLASH -> RAM issue when not const
-    const GPIOBaseConfig port_c_config = {
+    GPIOBaseConfig port_c_config = {
         .mode = OUTPUT,
         .type = PUSH_PULL,
         .speed = MED_SPEED,

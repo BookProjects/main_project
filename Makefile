@@ -34,7 +34,10 @@ _SRC := gpio/stm32f0_gpio.c \
 		utils/system_memory_internals.c  \
 		utils/common.c \
 		processor/stm32f0/peripheral.c
-_CROSS_SRC := stm32f0/main.c processor/stm32f0/initialization.c stm32f0/stm32f0xx_it.c
+_CROSS_SRC := stm32f0/main.c \
+			  stm32f0/system_stm32f0xx.c \
+			  processor/stm32f0/initialization.c \
+		      stm32f0/stm32f0xx_it.c
 SRC := $(patsubst %,$(SRC_PATH)/%,$(_SRC))
 
 _TEST_SRC := gpio/test_stm32f0_gpio_creation.c \
@@ -114,7 +117,7 @@ DEFS:= -DRUN_FROM_FLASH=1
 MCFLAGS:= -mcpu=$(MCU)
 BASE_CROSS_FLAGS:= $(MCFLAGS) -g -gdwarf-2 -mthumb
 ASSEMBLER_FLAGS:= $(BASE_CROSS_FLAGS) -Wa,-amhls=$(<:.s=.lst)
-CROSS_CFLAGS := -c $(BASE_CFLAGS) $(BASE_CROSS_FLAGS) -fomit-frame-pointer
+CROSS_CFLAGS := -c $(BASE_CFLAGS) $(BASE_CROSS_FLAGS) -fomit-frame-pointer -Wa,-amhls=$(<:.c=.lst) $(DEFS)
 CROSS_LDFLAGS := -g -nostartfiles -T$(LINKER_SCRIPT) -Wl,-Map=$(MAP_FILE),--cref,--no-warn-mismatch
 
 # Make commands

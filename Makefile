@@ -1,136 +1,199 @@
-#
-#       !!!! Do NOT edit this makefile with an editor which replace tabs by spaces !!!!   
-#
-##############################################################################################
-#
-# On command line:
-#
-# make all = Create project
-#
-# make clean = Clean project files.
-#
-# To rebuild project do "make clean" and "make all".
-#
-# Included originally in the yagarto projects. Original Author : Michael Fischer
-# Modified to suit our purposes by Hussam Al-Hertani
-# Use at your own risk!!!!!
-##############################################################################################
-# Start of default section
-#
-CCPREFIX = $(CC_PATH)/arm-none-eabi-
-CC   = $(CCPREFIX)gcc
-CP   = $(CCPREFIX)objcopy
-AS   = $(CCPREFIX)gcc -x assembler-with-cpp
-GDBTUI = $(CCPREFIX)gdbtui
-HEX  = $(CP) -O ihex
-BIN  = $(CP) -O binary -S
-MCU  = cortex-m0
- 
-# List all C defines here
-DDEFS = 
-#
-# Define project name and Ram/Flash mode here
-PROJECT        = iotogglem0
- 
-# List C source files here
+#Verbosity flags (Q=quiet, E=echo)
+ifdef VERBOSE
+	Q =
+	E = @echo
+else
+	Q = @
+	E = @echo 
+endif
 
-SRC  = ./src/stm32f0/main.c
-SRC += ./src/stm32f0/stm32f0xx_it.c
-# SRC += ./src/system_stm32f0xx.c
-SRC += ./src/gpio/stm32f0_gpio.c \
-	   ./src/utils/common.c \
-	   ./src/clock/stm32f0_clock.c \
-	   ./src/flash/stm32f0_flash.c \
-	   ./src/rcc/stm32f0_rcc.c \
-	   ./src/utils/system_memory.c \
-	   ./src/utils/system_memory_internals.c \
-	   ./src/processor/stm32f0/initialization.c \
-	   ./src/processor/stm32f0/peripheral.c
+# Define testing tool paths
+UNITY_PATH := $(UNITY_SOURCE)
+UNITY_EXTRA_PATH := $(UNITY_PATH)/extras/fixture/src
+CMOCK_PATH := $(CMOCK_SOURCE)
 
-# List assembly startup source file here
-STARTUP = ./src/stm32f0/startup_stm32f0xx.s
- 
-# List all include directories here
-INCDIRS = ./src ./src/CMSIS
-              
-# List the user directory to look for the libraries here
-LIBDIRS += 
- 
-# List all user libraries here
-LIBS =
- 
-# Define optimisation level here
-OPT = -Os
- 
+# Define library paths
+SRC_PATH := src
+TEST_PATH := tests/native
 
-# Define linker script file here
-LINKER_SCRIPT = ./linker/stm32f0_linker.ld
+# Define result paths
+BUILD_PATH := bin
+OBJ_PATH := $(BUILD_PATH)/obj
+TEST_OBJ_PATH := $(BUILD_PATH)/obj/native
+CROSS_OBJ_PATH := $(BUILD_PATH)/cross_obj
 
- 
-INCDIR  = $(patsubst %,-I%, $(INCDIRS))
-LIBDIR  = $(patsubst %,-L%, $(LIBDIRS))
-LIB     = $(patsubst %,-l%, $(LIBS))
-##reference only flags for run from ram...not used here
-##DEFS    = $(DDEFS) $(UDEFS) -DRUN_FROM_FLASH=0 -DVECT_TAB_SRAM
+STARTUP := stm32f0/startup_stm32f0xx.s
+LINKER_SCRIPT := linker/stm32f0_linker.ld
 
-## run from Flash
-DEFS    = $(DDEFS) -DRUN_FROM_FLASH=1
+# Define files that will get compiled
+_SRC := gpio/stm32f0_gpio.c \
+		clock/stm32f0_clock.c \
+		rcc/stm32f0_rcc.c \
+		flash/stm32f0_flash.c \
+		utils/system_memory.c \
+		utils/system_memory_internals.c  \
+		utils/common.c \
+		processor/stm32f0/peripheral.c
+_CROSS_SRC := stm32f0/main.c \
+			  processor/stm32f0/initialization.c \
+		      stm32f0/stm32f0xx_it.c
+SRC := $(patsubst %,$(SRC_PATH)/%,$(_SRC))
 
-OBJS  = $(STARTUP:.s=.o) $(SRC:.c=.o)
-MCFLAGS = -mcpu=$(MCU)
- 
-ASFLAGS = $(MCFLAGS) -g -gdwarf-2 -mthumb  -Wa,-amhls=$(<:.s=.lst) 
-CPFLAGS = $(MCFLAGS) $(OPT) -g -gdwarf-2 -mthumb   -fomit-frame-pointer -Wall -Wstrict-prototypes -fverbose-asm -Wa,-ahlms=$(<:.c=.lst) $(DEFS)
-LDFLAGS = $(MCFLAGS) -g -gdwarf-2 -mthumb -nostartfiles -T$(LINKER_SCRIPT) -Wl,-Map=$(PROJECT).map,--cref,--no-warn-mismatch $(LIBDIR) $(LIB)
- 
-#
-# makefile rules
-#
- 
-all: $(OBJS) $(PROJECT).elf  $(PROJECT).hex $(PROJECT).bin
-	$(TRGT)size $(PROJECT).elf
- 
-%.o: %.c
-	$(CC) -c $(CPFLAGS) -I . $(INCDIR) $< -o $@
+_TEST_SRC := gpio/test_stm32f0_gpio_creation.c \
+			 gpio/test_stm32f0_gpio_usage.c \
+			 clock/test_stm32f0_clock.c \
+			 utils/test_system_memory.c \
+			 mocks/mock_system_memory.c \
+			 mocks/mock_system_memory_internals.c
+_TEST_SRC += test_runner.c \
+			 config/unity_config.c
+TEST_SRC := $(patsubst %,$(TEST_PATH)/%,$(_TEST_SRC))
 
-%.o: %.s
-	$(AS) -c $(ASFLAGS) $< -o $@
+_OBJ := $(_SRC:.c=.o)
+OBJ := $(patsubst %,$(OBJ_PATH)/%,$(_OBJ))
 
-%.elf: $(OBJS)
-	$(CC) $(OBJS) $(LDFLAGS) $(LIBS) -o $@
+CROSS_OBJ := $(patsubst %,$(CROSS_OBJ_PATH)/%,$(_OBJ))
+_CROSS_OBJ := $(_CROSS_SRC:.c=.o)
+_CROSS_OBJ += $(STARTUP:.s=.o)
+CROSS_OBJ += $(patsubst %,$(CROSS_OBJ_PATH)/%,$(_CROSS_OBJ))
 
-%.hex: %.elf
-	$(HEX) $< $@
-	
-%.bin: %.elf
-	$(BIN)  $< $@
-	
-flash_openocd: $(PROJECT).bin
-	openocd -s ~/EmbeddedArm/openocd-bin/share/openocd/scripts/ -f interface/stlink-v2.cfg -f target/stm32f0x_stlink.cfg -c "init" -c "reset halt" -c "sleep 100" -c "wait_halt 2" -c "flash write_image erase $(PROJECT).bin 0x08000000" -c "sleep 100" -c "verify_image $(PROJECT).bin 0x08000000" -c "sleep 100" -c "reset run" -c shutdown
+_TEST_OBJ := $(_TEST_SRC:.c=.o)
+TEST_OBJ := $(patsubst %,$(TEST_OBJ_PATH)/%,$(_TEST_OBJ))
 
-flash_stlink: $(PROJECT).bin
-	st-flash write $(PROJECT).bin 0x8000000
+_UNITY_SRC := src/unity.c extras/fixture/src/unity_fixture.c
+UNITY_SRC := $(patsubst %,$(UNITY_PATH)/%,$(_UNITY_SRC))
+_UNITY_OBJ := $(_UNITY_SRC:.c=.o)
+UNITY_OBJ := $(patsubst %,$(OBJ_PATH)/%,$(_UNITY_OBJ))
 
-erase_openocd:
-	openocd -s ~/EmbeddedArm/openocd-bin/share/openocd/scripts/ -f interface/stlink-v2.cfg -f target/stm32f0x_stlink.cfg -c "init" -c "reset halt" -c "sleep 100" -c "stm32f1x mass_erase 0" -c "sleep 100" -c shutdown 
+_CMOCK_SRC := src/cmock.c
+CMOCK_SRC := $(patsubst %,$(CMOCK_PATH)/,%(_CMOCK_SRC))
+_CMOCK_OBJ := $(_CMOCK_SRC:.c=.o)
+CMOCK_OBJ := $(patsubst %,$(OBJ_PATH)/%,$(_CMOCK_OBJ))
 
-erase_stlink:
+PROJECT_LIB := main_project.a
+TEST_TARGET := $(BUILD_PATH)/run_test.out
+
+CROSS_TARGET := $(BUILD_PATH)/hw_binary.bin
+CROSS_HEX := $(CROSS_TARGET:.bin=.hex)
+CROSS_ELF := $(CROSS_TARGET:.bin=.elf)
+
+MAP_FILE := $(BUILD_PATH)/mapfile.map
+
+# Commands
+COMPILE:=gcc -c
+LINK:=gcc
+AR:=ar
+
+# Cross compile commands
+CC_TYPE:=arm-none-eabi
+CC_PREFIX:=$(CC_PATH)/$(CC_TYPE)
+CROSS_COMPILE:=$(CC_PREFIX)-gcc
+CROSS_LINK:=$(CROSS_COMPILE)
+GDBTUI = $(CC_PREFIX)-gdb
+ASSEMBLE:=$(CROSS_COMPILE) -x assembler-with-cpp
+OBJCOPY:=$(CC_PREFIX)-objcopy
+HEX:=$(OBJCOPY) -O ihex
+BIN:=$(OBJCOPY) -O binary -S
+MCU:=cortex-m0
+
+# Define compiler options
+BASE_CFLAGS := -std=c99 \
+			   -Wall \
+		  	   -I. \
+		  	   -I$(SRC_PATH) \
+			   -I$(SRC_PATH)/CMSIS
+CFLAGS := $(BASE_CFLAGS) \
+		  -I$(UNITY_PATH)/src \
+		  -I$(UNITY_PATH)/extras/fixture/src \
+		  -I$(CMOCK_PATH)/src \
+		  -I$(TEST_PATH) \
+		  -I$(TEST_PATH)/config
+CFLAGS += -g -DUNITY_INCLUDE_CONFIG_H=tests/config/unity_config.h
+LDFLAGS := -DUNITY_INCLUDE_CONFIG_H=tests/config/unity_config.h
+ARFLAGS := r
+
+DEFS:= $(DDEFS) -DRUN_FROM_FLASH=1
+MCFLAGS:= -mcpu=$(MCU)
+BASE_CROSS_FLAGS:= $(MCFLAGS) -g -gdwarf-2 -mthumb
+ASSEMBLER_FLAGS:= $(BASE_CROSS_FLAGS) -Wa,-amhls=$(<:.s=.lst)
+OPT =  # -Os
+CROSS_CFLAGS := -c $(BASE_CFLAGS) $(BASE_CROSS_FLAGS) -fomit-frame-pointer -Wa,-amhls=$(<:.c=.lst) $(DEFS) $(OPT)
+CROSS_LDFLAGS := $(BASE_CROSS_FLAGS) -nostartfiles -T$(LINKER_SCRIPT) -Wl,-Map=$(MAP_FILE),--cref,--no-warn-mismatch
+
+# Make commands
+.PHONY: all
+all: $(TEST_TARGET)
+
+# Build cross-compiled binary
+.PHONY: build
+build: $(CROSS_TARGET)
+
+.PHONY: flash
+flash: $(CROSS_TARGET)
+	st-flash write $(CROSS_TARGET) 0x8000000
+
+.PHONY: erase
+erase:
 	st-flash erase
 
-debug_openocd: $(PROJECT).elf flash_openocd
-	xterm -e openocd -s ~/EmbeddedArm/openocd-bin/share/openocd/scripts/ -f interface/stlink-v2.cfg -f target/stm32f0x_stlink.cfg -c "init" -c "halt" -c "reset halt" &
-	$(GDBTUI) --eval-command="target remote localhost:3333" $(PROJECT).elf 
-
-debug_stlink: $(PROJECT).elf
+.PHONY: debug
+debug: $(CROSS_ELF)
 	xterm -e st-util &
-	$(GDBTUI) --eval-command="target remote localhost:4242"  $(PROJECT).elf -ex 'load'
-		
+	$(GDBTUI) --eval-command="target remote localhost:4242"  $(CROSS_ELF) -ex 'load'
+
+.PHONY: test
+test: $(TEST_TARGET)
+	./$(TEST_TARGET) -v
+
+.PHONY: clean
 clean:
-	-rm -rf $(OBJS)
-	-rm -rf $(PROJECT).elf
-	-rm -rf $(PROJECT).map
-	-rm -rf $(PROJECT).hex
-	-rm -rf $(PROJECT).bin
-	-rm -rf $(SRC:.c=.lst)
-	-rm -rf $(ASRC:.s=.lst)
-# *** EOF ***
+	rm -rf $(BUILD_PATH)
+
+# Rules for Make
+
+$(OBJ_PATH)/%.o: */%.c
+	$(E)C Compiling $< to $@
+	$(Q)mkdir -p `dirname $@`
+	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+
+$(OBJ_PATH)/%.o: $(UNITY_PATH)/%.c
+	$(E)C Compiling $< to $@
+	$(Q)mkdir -p `dirname $@`
+	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+
+$(OBJ_PATH)/%.o: $(CMOCK_PATH)/%.c
+	$(E)C Compiling $< to $@
+	$(Q)mkdir -p `dirname $@`
+	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+
+$(CROSS_OBJ_PATH)/%.o: */%.c
+	$(E)C Cross Compiling $< to $@
+	$(Q)mkdir -p `dirname $@`
+	$(Q)$(CROSS_COMPILE) -o $@ $< $(CROSS_CFLAGS)
+
+$(CROSS_OBJ_PATH)/%.o: */%.s
+	$(E)Assembling $< to $@
+	$(Q)mkdir -p `dirname $@`
+	$(ASSEMBLE) -c $(ASSEMBLER_FLAGS) $< -o $@
+
+$(PROJECT_LIB): $(OBJ)
+	$(Q)$(AR) $(ARFLAGS) $@ $^
+	$(Q)ranlib $@
+
+# $^ is shorthand for all of the dependencies
+# $@ is shorthand for the target
+$(TEST_TARGET): $(TEST_OBJ) $(UNITY_OBJ) $(CMOCK_OBJ) $(PROJECT_LIB)
+	$(E)"Linking" $@
+	$(Q)$(LINK) $(LDFLAGS) -o $@ $^
+
+$(CROSS_TARGET): $(CROSS_ELF)
+	$(E)"Building" $@
+	$(Q)$(BIN) $< $@
+
+$(CROSS_HEX): $(CROSS_ELF)
+	$(E)"Building" $@
+	$(Q)$(HEX) $< $@
+
+$(CROSS_ELF): $(CROSS_OBJ)
+	$(E)"Linking" $@
+	$(Q)$(CROSS_LINK) $(CROSS_LDFLAGS) -o $@ $^

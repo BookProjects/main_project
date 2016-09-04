@@ -1,6 +1,7 @@
 #include "unity_fixture.h"
 
 #include "clock/stm32f0_clock.h"
+#include "flash/stm32f0_flash.h"
 #include "gpio/stm32f0_gpio.h"
 #include "utils/errors.h"
 #include "mocks/mock_system_memory_internals.h"
@@ -33,6 +34,7 @@ static GPIOStruct global_test_gpio;
 // Used to run calls
 static GPIO test_gpio;
 static RCCStruct test_rcc;
+static FlashStruct test_flash;
 
 static S_DATA default_system_read_impl(S_DATA *src) {
     return *src;
@@ -41,6 +43,7 @@ static S_DATA default_system_read_impl(S_DATA *src) {
 TEST_SETUP(GPIOUsage) {
     Mocksystem_memory_internals_Init();
     system_init_ExpectAndReturn((void *)RCC_ADDRESS, sizeof(RCCStruct), &test_rcc);
+    system_init_ExpectAndReturn((void *)FLASH_ADDRESS, sizeof(FlashStruct), &test_flash);
     clock_create();
     system_init_ExpectAndReturn((void *)GPIO_A_BASE_ADDRESS, sizeof(GPIOStruct), &global_test_gpio);
     test_gpio = gpio_create(0);
@@ -50,6 +53,8 @@ TEST_SETUP(GPIOUsage) {
 
 TEST_TEAR_DOWN(GPIOUsage) {
     gpio_destroy(test_gpio);
+    test_rcc = (RCCStruct) { 0 };
+    test_flash = (FlashStruct) { 0 };
     global_test_gpio = (GPIOStruct) { 0 };
     Mocksystem_memory_internals_Verify();
     Mocksystem_memory_internals_Destroy();

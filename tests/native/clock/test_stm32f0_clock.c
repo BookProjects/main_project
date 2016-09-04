@@ -1,6 +1,7 @@
 #include "unity_fixture.h"
 
 #include "clock/stm32f0_clock.h"
+#include "flash/stm32f0_flash.h"
 #include "mocks/mock_system_memory_internals.h"
 
 TEST_GROUP(Clock);
@@ -11,15 +12,18 @@ TEST_GROUP_RUNNER(Clock) {
 }
 
 static RCCStruct test_rcc;
+static FlashStruct test_flash;
 
 TEST_SETUP(Clock) {
     Mocksystem_memory_internals_Init();
     system_init_ExpectAndReturn((void *)RCC_ADDRESS, sizeof(RCCStruct), &test_rcc);
+    system_init_ExpectAndReturn((void *)FLASH_ADDRESS, sizeof(FlashStruct), &test_flash);
     clock_create();
 }
 
 TEST_TEAR_DOWN(Clock) {
     test_rcc = (RCCStruct) { 0 };
+    test_flash = (FlashStruct) { 0 };
     Mocksystem_memory_internals_Verify();
     Mocksystem_memory_internals_Destroy();
 }

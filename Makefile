@@ -35,8 +35,10 @@ _SRC := gpio/stm32f0_gpio.c \
 		utils/common.c \
 		processor/stm32f0/peripheral.c
 _CROSS_SRC := stm32f0/main.c \
-			  processor/stm32f0/initialization.c \
-		      stm32f0/stm32f0xx_it.c
+		      stm32f0/test_basics.c \
+		      processor/stm32f0/initialization.c \
+			  stm32f0/stm32f0xx_it.c \
+			  stm32f0/unity_config.c
 SRC := $(patsubst %,$(SRC_PATH)/%,$(_SRC))
 
 _TEST_SRC := gpio/test_stm32f0_gpio_creation.c \
@@ -64,6 +66,7 @@ _UNITY_SRC := src/unity.c extras/fixture/src/unity_fixture.c
 UNITY_SRC := $(patsubst %,$(UNITY_PATH)/%,$(_UNITY_SRC))
 _UNITY_OBJ := $(_UNITY_SRC:.c=.o)
 UNITY_OBJ := $(patsubst %,$(OBJ_PATH)/%,$(_UNITY_OBJ))
+CROSS_OBJ += $(patsubst %,$(CROSS_OBJ_PATH)/%,src/unity.o)
 
 _CMOCK_SRC := src/cmock.c
 CMOCK_SRC := $(patsubst %,$(CMOCK_PATH)/,%(_CMOCK_SRC))
@@ -117,8 +120,14 @@ MCFLAGS:= -mcpu=$(MCU)
 BASE_CROSS_FLAGS:= $(MCFLAGS) -g -gdwarf-2 -mthumb
 ASSEMBLER_FLAGS:= $(BASE_CROSS_FLAGS) -Wa,-amhls=$(<:.s=.lst)
 OPT =  # -Os
-CROSS_CFLAGS := -c $(BASE_CFLAGS) $(BASE_CROSS_FLAGS) -fomit-frame-pointer -Wa,-amhls=$(<:.c=.lst) $(DEFS) $(OPT)
-CROSS_LDFLAGS := $(BASE_CROSS_FLAGS) -nostartfiles -T$(LINKER_SCRIPT) -Wl,-Map=$(MAP_FILE),--cref,--no-warn-mismatch
+CROSS_CFLAGS := -c $(BASE_CFLAGS) $(BASE_CROSS_FLAGS) -fomit-frame-pointer \
+				-Wa,-amhls=$(<:.c=.lst) $(DEFS) $(OPT) \
+				-I$(UNITY_PATH)/src \
+				-I$(UNITY_PATH)/extras/fixture/src \
+				-I$(SRC_PATH)/stm32f0 \
+				-DUNITY_INCLUDE_CONFIG_H=src/stm32f0/unity_config.h
+CROSS_LDFLAGS := $(BASE_CROSS_FLAGS) -nostartfiles -T$(LINKER_SCRIPT) -Wl,-Map=$(MAP_FILE),--cref,--no-warn-mismatch \
+				 -DUNITY_INCLUDE_CONFIG_H=src/stm32f0/unity_config.h
 
 # Make commands
 .PHONY: all
@@ -165,6 +174,11 @@ $(OBJ_PATH)/%.o: $(CMOCK_PATH)/%.c
 	$(E)C Compiling $< to $@
 	$(Q)mkdir -p `dirname $@`
 	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+
+$(CROSS_OBJ_PATH)/%.o: $(UNITY_PATH)/%.c
+	$(E)C Compiling $< to $@
+	$(Q)mkdir -p `dirname $@`
+	$(Q)$(CROSS_COMPILE) -o $@ $< $(CROSS_CFLAGS)
 
 $(CROSS_OBJ_PATH)/%.o: */%.c
 	$(E)C Cross Compiling $< to $@

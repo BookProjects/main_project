@@ -13,9 +13,11 @@ void flash(GPIO gpio);
 bool test_read_write();
 
 void setUp() {
+    start_unity_test();
 }
 
 void tearDown() {
+    stop_unity_test();
 }
 
 void test_basic() {

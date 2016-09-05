@@ -11,6 +11,8 @@
 int cross_unity_output_char(int a);
 void cross_unity_output_complete();
 void setup_unity_output();
+void start_unity_test();
+void stop_unity_test();
 
 #define UNITY_OUTPUT_CHAR(a) cross_unity_output_char(a)
 #define UNITY_OUTPUT_FLUSH()

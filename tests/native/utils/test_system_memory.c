@@ -40,4 +40,5 @@ TEST(SystemMemory, SetMask) {
     S_SM(struct_p, val1, BIT(3), ON);
     system_write_Expect(&(test_struct.val1), BIT(2));
     S_SM(struct_p, val1, BIT(3), OFF);
+
 }

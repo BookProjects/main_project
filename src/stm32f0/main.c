@@ -4,13 +4,21 @@
 #include "processor/stm32f0/peripheral.h"
 #include "stm32f0/stm32f0xx.h"
 #include <setjmp.h>
+// #include "unity_fixture.h"
+#include "unity.h"
 
 void delay(int x);
 void flash(GPIO gpio);
 
 bool test_read_write();
 
-bool test_read_write() {
+void setUp() {
+}
+
+void tearDown() {
+}
+
+void test_basic() {
     bool good = true;
     // Flash size should == 0x0040 (64kB)
     uint16_t flash_size = system_read(0x1FFFF7CC) & 0xFFFF;
@@ -30,30 +38,26 @@ bool test_read_write() {
         good = false;
     }
     */
+    /*
+    delay(200);
+    flash(gpio_c);
+    */
+    TEST_ASSERT_EQUAL_UINT32(0, 0);
     return good;
 }
 
 
+/*
+static void RunAllTests(void) {
+    RUN_TEST_GROUP(GPIO);
+}
+*/
+
 int main() {
-    GPIO gpio_c = gpio_create(2);
-    // @mjschulte pointed out FLASH -> RAM issue when not const
-    GPIOBaseConfig port_c_config = {
-        .mode = OUTPUT,
-        .type = PUSH_PULL,
-        .speed = MED_SPEED,
-        .pull = NO_PULL
-    };
-    gpio_configure_port(gpio_c, port_c_config);
-    gpio_write_pin(gpio_c, 9, ON);
-    gpio_write_pin(gpio_c, 8, ON);
-    delay(200);
-    flash(gpio_c);
-    if(test_read_write() != true) {
-        gpio_write_pin(gpio_c, 8, ON);
-    }
-    gpio_write_pin(gpio_c, 9, OFF);
-    gpio_destroy(gpio_c);
-    return 0;
+    setup_unity_output();
+    UNITY_BEGIN();
+    RUN_TEST(test_basic);
+    return UNITY_END();
 }
 
 void delay(int x) {

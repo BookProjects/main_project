@@ -27,13 +27,13 @@ void cross_unity_output_complete() {
 }
 
 void start_unity_test() {
-    _delay(500);
     gpio_write_pin(gpio_output, 8, ON);
     _delay(500);
 }
 
 void stop_unity_test() {
     gpio_write_pin(gpio_output, 8, OFF);
+    _delay(500);
 }
 
 void setup_unity_output() {

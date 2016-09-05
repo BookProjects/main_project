@@ -35,6 +35,7 @@ _SRC := gpio/stm32f0_gpio.c \
 		utils/common.c \
 		processor/stm32f0/peripheral.c
 _CROSS_SRC := stm32f0/main.c \
+		      stm32f0/test_basics.c \
 		      processor/stm32f0/initialization.c \
 			  stm32f0/stm32f0xx_it.c \
 			  stm32f0/unity_config.c

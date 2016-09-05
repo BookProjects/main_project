@@ -168,7 +168,6 @@ $(OBJ_PATH)/%.o: */%.c
 $(OBJ_PATH)/%.o: $(UNITY_PATH)/%.c
 	$(E)C Compiling $< to $@
 	$(Q)mkdir -p `dirname $@`
-	$(Q)$(COMPILE) -S -o $@.asm $< $(CFLAGS) -fverbose-asm
 	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
 
 $(OBJ_PATH)/%.o: $(CMOCK_PATH)/%.c
@@ -184,7 +183,6 @@ $(CROSS_OBJ_PATH)/%.o: $(UNITY_PATH)/%.c
 $(CROSS_OBJ_PATH)/%.o: */%.c
 	$(E)C Cross Compiling $< to $@
 	$(Q)mkdir -p `dirname $@`
-	$(Q)$(CROSS_COMPILE) -S -o $@.asm $< $(CROSS_CFLAGS) -fverbose-asm
 	$(Q)$(CROSS_COMPILE) -o $@ $< $(CROSS_CFLAGS)
 
 $(CROSS_OBJ_PATH)/%.o: */%.s

@@ -21,6 +21,8 @@ BUILD_PATH := bin
 OBJ_PATH := $(BUILD_PATH)/obj
 TEST_OBJ_PATH := $(BUILD_PATH)/obj/native
 CROSS_OBJ_PATH := $(BUILD_PATH)/cross_obj
+COV_PATH := $(BUILD_PATH)/coverage
+COV_SUMMARY := $(COV_PATH)/index.html
 
 STARTUP := stm32f0/startup_stm32f0xx.s
 LINKER_SCRIPT := linker/stm32f0_linker.ld
@@ -75,6 +77,7 @@ CMOCK_OBJ := $(patsubst %,$(OBJ_PATH)/%,$(_CMOCK_OBJ))
 
 PROJECT_LIB := main_project.a
 TEST_TARGET := $(BUILD_PATH)/run_test.out
+COV_TARGET := $(BUILD_PATH)/coverage.info
 
 CROSS_TARGET := $(BUILD_PATH)/hw_binary.bin
 CROSS_HEX := $(CROSS_TARGET:.bin=.hex)
@@ -97,6 +100,7 @@ ASSEMBLE:=$(CROSS_COMPILE) -x assembler-with-cpp
 OBJCOPY:=$(CC_PREFIX)-objcopy
 HEX:=$(OBJCOPY) -O ihex
 BIN:=$(OBJCOPY) -O binary -S
+LCOV:=lcov --base-directory . --directory $(OBJ_PATH)
 MCU:=cortex-m0
 
 # Define compiler options
@@ -112,7 +116,8 @@ CFLAGS := $(BASE_CFLAGS) \
 		  -I$(TEST_PATH) \
 		  -I$(TEST_PATH)/config
 CFLAGS += -g -DUNITY_INCLUDE_CONFIG_H=tests/config/unity_config.h
-LDFLAGS := -DUNITY_INCLUDE_CONFIG_H=tests/config/unity_config.h
+TEST_CFLAGS = $(CFLAGS) --coverage
+LDFLAGS := -DUNITY_INCLUDE_CONFIG_H=tests/config/unity_config.h --coverage
 ARFLAGS := r
 
 DEFS:= $(DDEFS) -DRUN_FROM_FLASH=1
@@ -151,8 +156,8 @@ debug: $(CROSS_ELF)
 	$(GDBTUI) --eval-command="target remote localhost:4242"  $(CROSS_ELF) -ex 'load'
 
 .PHONY: test
-test: $(TEST_TARGET)
-	./$(TEST_TARGET) -v
+test: $(COV_SUMMARY)
+	$(E)Test and Coverage complete
 
 .PHONY: clean
 clean:
@@ -163,17 +168,17 @@ clean:
 $(OBJ_PATH)/%.o: */%.c
 	$(E)C Compiling $< to $@
 	$(Q)mkdir -p `dirname $@`
-	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+	$(Q)$(COMPILE) -o $@ $< $(TEST_CFLAGS)
 
 $(OBJ_PATH)/%.o: $(UNITY_PATH)/%.c
 	$(E)C Compiling $< to $@
 	$(Q)mkdir -p `dirname $@`
-	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+	$(Q)$(COMPILE) -o $@ $< $(TEST_CFLAGS)
 
 $(OBJ_PATH)/%.o: $(CMOCK_PATH)/%.c
 	$(E)C Compiling $< to $@
 	$(Q)mkdir -p `dirname $@`
-	$(Q)$(COMPILE) -o $@ $< $(CFLAGS)
+	$(Q)$(COMPILE) -o $@ $< $(TEST_CFLAGS)
 
 $(CROSS_OBJ_PATH)/%.o: $(UNITY_PATH)/%.c
 	$(E)C Compiling $< to $@
@@ -194,6 +199,11 @@ $(PROJECT_LIB): $(OBJ)
 	$(Q)$(AR) $(ARFLAGS) $@ $^
 	$(Q)ranlib $@
 
+$(COV_SUMMARY): $(COV_TARGET)
+	$(Q)mkdir -p `dirname $@`
+	$(Q)# Generate an html coverage report
+	$(Q)genhtml -o $(COV_PATH) $(COV_TARGET)
+
 # $^ is shorthand for all of the dependencies
 # $@ is shorthand for the target
 $(TEST_TARGET): $(TEST_OBJ) $(UNITY_OBJ) $(CMOCK_OBJ) $(PROJECT_LIB)
@@ -211,3 +221,12 @@ $(CROSS_HEX): $(CROSS_ELF)
 $(CROSS_ELF): $(CROSS_OBJ)
 	$(E)"Linking" $@
 	$(Q)$(CROSS_LINK) $(CROSS_LDFLAGS) -o $@ $^
+
+$(COV_TARGET): $(TEST_TARGET)
+	$(Q)$(LCOV) --zerocounters -q
+	$(Q)./$(TEST_TARGET) -v
+	$(Q)$(LCOV) -q -c -o $(COV_TARGET)
+	$(Q)# Remove unnecessary coverage
+	$(Q)lcov -q --remove $(COV_TARGET) "/usr*" -o $(COV_TARGET)
+	$(Q)lcov -q --remove $(COV_TARGET) "$(UNITY_PATH)/*" -o $(COV_TARGET)
+	$(Q)lcov -q --remove $(COV_TARGET) "$(CMOCK_PATH)/*" -o $(COV_TARGET)

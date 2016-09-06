@@ -114,7 +114,6 @@ CFLAGS := $(BASE_CFLAGS) \
 		  -I$(UNITY_PATH)/extras/fixture/src \
 		  -I$(CMOCK_PATH)/src \
 		  -I$(TEST_PATH) \
-		  -I$(SRC_PATH) \
 		  -I$(TEST_PATH)/config
 CFLAGS += -g -DUNITY_INCLUDE_CONFIG_H=tests/config/unity_config.h
 TEST_CFLAGS = $(CFLAGS) --coverage

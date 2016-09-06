@@ -1,2 +1,3 @@
-# stm32f0_timer_lib
-A Library for the STM32F0 TImer
+# STM32F0 Library
+
+A Library for the STM32F0
